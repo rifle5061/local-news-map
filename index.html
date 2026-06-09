@@ -23,16 +23,21 @@ h1{margin:0;font-size:28px;line-height:1.15;font-weight:900}
 select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:999px;padding:10px 14px;font-weight:900;max-width:240px}
 .mini-check{display:inline-flex;align-items:center;gap:6px;background:#f3f7fc;border:1px solid #dce7f3;border-radius:999px;padding:8px 11px;font-size:13px;font-weight:900;white-space:nowrap}
 .mini-check input{transform:scale(1.12);accent-color:#1f7cff}
+.category-block{margin:12px 0 8px;padding-top:8px;border-top:1px solid #edf2f7}
+.category-title{text-align:center;color:#607089;font-weight:900;font-size:13px;margin-bottom:9px}
+.category-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.category-options .mini-check{justify-content:center;width:100%;padding:10px 8px}
 .status{margin-top:8px;font-size:20px;font-weight:900}
 .status-note{font-size:12px;color:#607089}
-.weather{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px;margin-top:12px}
-.weather>div{background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:14px}
-.weather-main{display:flex;gap:12px;align-items:center}
+.weather{display:block;margin-top:12px}
+.weather-main,.wbox{background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:14px}
+.weather-main{display:flex;gap:12px;align-items:center;justify-content:center;text-align:left;margin-bottom:10px}
+.weather-values{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .wicon{width:56px;height:56px;border-radius:18px;background:#eef7ff;display:grid;place-items:center;font-size:32px}
 .wtitle{font-size:18px;font-weight:900}
 .wsmall{font-size:13px;color:#607089}
-.wbox strong{display:block;font-size:25px}
-.wbox span{font-size:13px;color:#607089}
+.wbox strong{display:block;font-size:25px;text-align:center}
+.wbox span{display:block;font-size:13px;color:#607089;text-align:center}
 .card{background:#fff;border:1px solid #dce7f3;border-radius:22px;overflow:hidden;box-shadow:0 8px 24px rgba(20,45,90,.06);margin-top:12px}
 .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #eef2f7}
 .map-head h2{margin:0;font-size:21px}
@@ -66,8 +71,16 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 .popup-title{font-weight:900;font-size:15px;margin-bottom:4px}
 .popup-meta{color:#66758a;font-size:12px;margin-bottom:8px}
 .popup-link{display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px}
-@media(max-width:900px){.header{grid-template-columns:1fr}.weather{grid-template-columns:1fr 1fr}.weather-main{grid-column:1/-1}#map{height:620px}.news{grid-template-columns:1fr}.info{grid-template-columns:1fr}}
+@media(max-width:900px){.header{grid-template-columns:1fr}.weather-values{grid-template-columns:repeat(3,1fr)}#map{height:620px}.news{grid-template-columns:1fr}.info{grid-template-columns:1fr}}
 @media(max-width:520px){.page{padding:10px 8px 28px}.hero{border-radius:22px;padding:14px 12px}h1{font-size:25px}#map{height:560px}.lock{left:10px;right:10px;text-align:center}.legend{left:10px;right:10px;bottom:10px}}
+@media(max-width:420px){
+  .category-options{grid-template-columns:repeat(3,1fr);gap:6px}
+  .category-options .mini-check{font-size:12px;padding:9px 5px}
+  .weather-values{grid-template-columns:repeat(3,1fr);gap:6px}
+  .wbox{padding:12px 6px}
+  .wbox strong{font-size:22px}
+  .wbox span{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -128,20 +141,31 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 <option value="鹿児島県">鹿児島県</option>
 <option value="沖縄県">沖縄県</option></select></div>
 
-      <div class="row category-row"><span class="label">表示カテゴリ</span>
-        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="event" checked>イベント</label>
-        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="traffic" checked>渋滞</label>
-        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="crime" checked>事件</label>
+      <div class="category-block">
+        <div class="category-title">表示カテゴリ</div>
+        <div class="category-options">
+          <label class="mini-check"><input type="checkbox" class="category-filter" data-category="event" checked>イベント</label>
+          <label class="mini-check"><input type="checkbox" class="category-filter" data-category="traffic" checked>渋滞</label>
+          <label class="mini-check"><input type="checkbox" class="category-filter" data-category="crime" checked>事件</label>
+        </div>
       </div>
       <div class="status" id="status">全国ニュース</div>
       <div class="status-note" id="statusNote">都道府県を選択すると地図と天気だけ切り替わります。ニュース一覧は全国のままです。</div>
     </div>
   </div>
-  <div class="weather">
-    <div class="weather-main"><div class="wicon">☁️</div><div><div class="wtitle" id="weatherTitle">地域天気</div><div class="wsmall">Open-Meteoで選択地域の現在天気を表示</div></div></div>
-    <div class="wbox"><strong id="temp">--℃</strong><span>気温</span></div>
-    <div class="wbox"><strong id="rain">--%</strong><span>降水確率</span></div>
-    <div class="wbox"><strong id="wind">--m</strong><span>風速</span></div>
+  <div class="weather weather-compact">
+    <div class="weather-main">
+      <div class="wicon">☁️</div>
+      <div>
+        <div class="wtitle" id="weatherTitle">地域天気</div>
+        <div class="wsmall">Open-Meteoで選択地域の現在天気を表示</div>
+      </div>
+    </div>
+    <div class="weather-values">
+      <div class="wbox"><strong id="temp">--℃</strong><span>気温</span></div>
+      <div class="wbox"><strong id="rain">--%</strong><span>降水確率</span></div>
+      <div class="wbox"><strong id="wind">--m</strong><span>風速</span></div>
+    </div>
   </div>
 </section>
 
@@ -169,7 +193,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。全国版の実データ反映テストとして、ニュースリンクと天気APIを接続しています。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 00:40</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 01:00</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
