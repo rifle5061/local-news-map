@@ -33,6 +33,10 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 .weather-main,.wbox{background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:14px}
 .weather-main{display:flex;gap:12px;align-items:center;justify-content:center;text-align:left;margin-bottom:10px}
 .weather-values{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.forecast{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.forecast-card{background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:12px;text-align:center}
+.forecast-card strong{display:block;font-size:14px;color:#273449;margin-bottom:4px}
+.forecast-card span{display:block;font-size:12px;color:#607089;line-height:1.45}
 .wicon{width:56px;height:56px;border-radius:18px;background:#eef7ff;display:grid;place-items:center;font-size:32px}
 .wtitle{font-size:18px;font-weight:900}
 .wsmall{font-size:13px;color:#607089}
@@ -80,7 +84,112 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
   .wbox{padding:12px 6px}
   .wbox strong{font-size:22px}
   .wbox span{font-size:12px}
+  .forecast{grid-template-columns:repeat(3,1fr);gap:6px}
+  .forecast-card{padding:10px 5px}
+  .forecast-card strong{font-size:12px}
+  .forecast-card span{font-size:11px}
 }
+
+.weather-effect{
+  position:absolute;
+  inset:0;
+  z-index:450;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:.9;
+  mix-blend-mode:normal;
+}
+
+/* 通常・曇り：邪魔しない */
+.weather-effect.normal,
+.weather-effect.cloudy{
+  background:transparent;
+}
+
+/* 晴れ：地図を少し明るく、左上から薄い日差し */
+.weather-effect.sunny{
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,224,120,.24), transparent 28%),
+    linear-gradient(135deg, rgba(255,247,210,.16), rgba(255,255,255,0) 55%);
+}
+
+/* 雨：薄い斜め雨。地図が見えるよう透明度低め */
+.weather-effect.rain::before{
+  content:"";
+  position:absolute;
+  inset:-80px;
+  background-image:
+    repeating-linear-gradient(115deg,
+      rgba(60,130,200,.0) 0px,
+      rgba(60,130,200,.0) 11px,
+      rgba(60,130,200,.28) 12px,
+      rgba(60,130,200,.28) 13px,
+      rgba(60,130,200,.0) 14px,
+      rgba(60,130,200,.0) 24px);
+  animation: rainMove .85s linear infinite;
+  opacity:.42;
+}
+
+/* 雪：薄い雪粒 */
+.weather-effect.snow::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.75) 0 1.5px, transparent 2px),
+    radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 1.5px);
+  background-size: 42px 42px, 66px 66px;
+  background-position: 0 0, 18px 22px;
+  animation: snowMove 6s linear infinite;
+  opacity:.55;
+}
+
+/* 雷雨：少し暗く、たまに薄く光る */
+.weather-effect.thunder{
+  background:rgba(20,30,48,.16);
+}
+.weather-effect.thunder::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,.0);
+  animation: thunderFlash 5s infinite;
+}
+
+/* 霧：薄い白もや */
+.weather-effect.fog{
+  background:
+    linear-gradient(0deg, rgba(255,255,255,.24), rgba(255,255,255,.08)),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,.0) 0px,
+      rgba(255,255,255,.0) 18px,
+      rgba(255,255,255,.18) 24px,
+      rgba(255,255,255,.0) 38px);
+  opacity:.55;
+}
+
+@keyframes rainMove{
+  from{transform:translate3d(-20px,-20px,0)}
+  to{transform:translate3d(20px,40px,0)}
+}
+@keyframes snowMove{
+  from{transform:translate3d(0,-20px,0)}
+  to{transform:translate3d(18px,60px,0)}
+}
+@keyframes thunderFlash{
+  0%,88%,100%{background:rgba(255,255,255,0)}
+  89%{background:rgba(255,255,255,.36)}
+  90%{background:rgba(255,255,255,0)}
+  94%{background:rgba(255,255,255,.18)}
+  95%{background:rgba(255,255,255,0)}
+}
+
+/* スマホ負荷軽減 */
+@media(max-width:520px){
+  .weather-effect.rain::before{opacity:.32;animation-duration:1.1s}
+  .weather-effect.snow::before{opacity:.42;animation-duration:7s}
+}
+
 </style>
 </head>
 <body>
@@ -155,16 +264,21 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
   </div>
   <div class="weather weather-compact">
     <div class="weather-main">
-      <div class="wicon">☁️</div>
+      <div class="wicon" id="weatherIcon">☁️</div>
       <div>
         <div class="wtitle" id="weatherTitle">地域天気</div>
-        <div class="wsmall">Open-Meteoで選択地域の現在天気を表示</div>
+        <div class="wsmall" id="weatherSmall">Open-Meteoで選択地域の現在天気を表示</div>
       </div>
     </div>
     <div class="weather-values">
-      <div class="wbox"><strong id="temp">--℃</strong><span>気温</span></div>
+      <div class="wbox"><strong id="temp">--℃</strong><span>現在気温</span></div>
       <div class="wbox"><strong id="rain">--%</strong><span>降水確率</span></div>
       <div class="wbox"><strong id="wind">--m</strong><span>風速</span></div>
+    </div>
+    <div class="forecast" id="forecastList">
+      <div class="forecast-card"><strong>今日</strong><span>取得中</span></div>
+      <div class="forecast-card"><strong>明日</strong><span>取得中</span></div>
+      <div class="forecast-card"><strong>明後日</strong><span>取得中</span></div>
     </div>
   </div>
 </section>
@@ -178,7 +292,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
       <label class="check"><input type="checkbox" id="showTraffic" checked>渋滞・交通事故</label>
     </div>
   </div>
-  <div class="map-wrap"><div id="map"></div><div class="lock" id="lockNote">日本地図</div>
+  <div class="map-wrap"><div id="map"></div><div id="weatherEffect" class="weather-effect normal"></div><div class="lock" id="lockNote">日本地図</div>
   <div class="legend">
     <div><span class="dot" style="background:#ef4444;opacity:.45"></span>事件・防犯：エリア表示</div>
     <div><span class="dot" style="background:#22c55e"></span>イベント：ピン表示</div>
@@ -193,7 +307,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。全国版の実データ反映テストとして、ニュースリンクと天気APIを接続しています。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 01:35</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。情報量補強のため公式・ポータル確認リンクも掲載しています。期間イベントはstartDate/endDateで開催期間中のみ地図表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 02:10</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。情報量補強のため公式・ポータル確認リンクも掲載しています。期間イベントはstartDate/endDateで開催期間中のみ地図表示します。天気はOpen-Meteo APIを利用し、現在天気と3日分の簡易予報を表示しています。地図には現在天気に応じた薄いエフェクトを重ねています。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -381,28 +495,82 @@ function weatherCodeText(code){
   45:"霧",48:"霧氷",
   51:"弱い霧雨",53:"霧雨",55:"強い霧雨",
   61:"弱い雨",63:"雨",65:"強い雨",
-  71:"弱い雪",73:"雪",75:"強い雪",
+  66:"弱い凍雨",67:"強い凍雨",
+  71:"弱い雪",73:"雪",75:"強い雪",77:"雪粒",
   80:"にわか雨",81:"にわか雨",82:"強いにわか雨",
+  85:"にわか雪",86:"強いにわか雪",
   95:"雷雨",96:"雷雨",99:"強い雷雨"
  };
- return mapText[code] || "天気";
+ return mapText[Number(code)] || "天気";
+}
+
+function weatherIcon(code){
+ code = Number(code);
+ if(code === 0 || code === 1) return "☀️";
+ if(code === 2) return "🌤️";
+ if(code === 3) return "☁️";
+ if(code === 45 || code === 48) return "🌫️";
+ if([51,53,55,61,63,65,66,67,80,81,82].includes(code)) return "☔";
+ if([71,73,75,77,85,86].includes(code)) return "❄️";
+ if([95,96,99].includes(code)) return "⛈️";
+ return "☁️";
+}
+
+
+function weatherEffectClass(code){
+ code = Number(code);
+ if(code === 0 || code === 1) return "sunny";
+ if(code === 2 || code === 3) return "cloudy";
+ if(code === 45 || code === 48) return "fog";
+ if([51,53,55,61,63,65,66,67,80,81,82].includes(code)) return "rain";
+ if([71,73,75,77,85,86].includes(code)) return "snow";
+ if([95,96,99].includes(code)) return "thunder";
+ return "normal";
+}
+
+function setWeatherEffect(code){
+ const layer = document.getElementById("weatherEffect");
+ if(!layer) return;
+ const cls = weatherEffectClass(code);
+ layer.className = `weather-effect ${cls}`;
+}
+
+function dayLabel(isoDate, idx){
+ if(idx === 0) return "今日";
+ if(idx === 1) return "明日";
+ if(idx === 2) return "明後日";
+ const d = new Date(isoDate + "T00:00:00+09:00");
+ return `${d.getMonth()+1}/${d.getDate()}`;
 }
 
 async function fetchWeather(){
  const pref = (!state.pref || state.pref==="全国") ? "東京都" : state.pref;
  const p = PREFS[pref] || PREFS["東京都"];
  const title = document.getElementById("weatherTitle");
+ const small = document.getElementById("weatherSmall");
+ const icon = document.getElementById("weatherIcon");
  const temp = document.getElementById("temp");
  const rain = document.getElementById("rain");
  const wind = document.getElementById("wind");
+ const forecast = document.getElementById("forecastList");
 
  title.textContent = `${pref}の天気を取得中`;
+ if(small) small.textContent = "天気APIへ接続中";
+ if(icon) icon.textContent = "☁️";
+ setWeatherEffect(3);
  temp.textContent = "--℃";
  rain.textContent = "--%";
  wind.textContent = "--m";
+ if(forecast){
+  forecast.innerHTML = `
+    <div class="forecast-card"><strong>今日</strong><span>取得中</span></div>
+    <div class="forecast-card"><strong>明日</strong><span>取得中</span></div>
+    <div class="forecast-card"><strong>明後日</strong><span>取得中</span></div>
+  `;
+ }
 
  try{
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=precipitation_probability_max&timezone=Asia%2FTokyo&forecast_days=1`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&forecast_days=3`;
   const res = await fetch(url);
   if(!res.ok) throw new Error("weather fetch failed");
   const data = await res.json();
@@ -410,15 +578,47 @@ async function fetchWeather(){
   const current = data.current || {};
   const daily = data.daily || {};
   const code = Number(current.weather_code);
+
   title.textContent = `${pref}：${weatherCodeText(code)}`;
+  if(icon) icon.textContent = weatherIcon(code);
+  setWeatherEffect(code);
   temp.textContent = Number.isFinite(Number(current.temperature_2m)) ? `${Math.round(Number(current.temperature_2m))}℃` : "--℃";
   rain.textContent = Array.isArray(daily.precipitation_probability_max) ? `${daily.precipitation_probability_max[0]}%` : "--%";
   wind.textContent = Number.isFinite(Number(current.wind_speed_10m)) ? `${Math.round(Number(current.wind_speed_10m))}m` : "--m";
+
+  const humidity = Number(current.relative_humidity_2m);
+  const updatedTime = current.time ? current.time.replace("T"," ") : "";
+  if(small){
+    small.textContent = Number.isFinite(humidity)
+      ? `湿度 ${humidity}% / 更新 ${updatedTime}`
+      : `更新 ${updatedTime}`;
+  }
+
+  if(forecast && Array.isArray(daily.time)){
+    forecast.innerHTML = daily.time.slice(0,3).map((date, idx)=>{
+      const w = daily.weather_code?.[idx];
+      const max = daily.temperature_2m_max?.[idx];
+      const min = daily.temperature_2m_min?.[idx];
+      const pp = daily.precipitation_probability_max?.[idx];
+      const text = `${weatherIcon(w)} ${weatherCodeText(w)}<br>最高${Math.round(Number(max))}℃ / 最低${Math.round(Number(min))}℃<br>降水${pp ?? "--"}%`;
+      return `<div class="forecast-card"><strong>${dayLabel(date, idx)}</strong><span>${text}</span></div>`;
+    }).join("");
+  }
  }catch(e){
   title.textContent = `${pref}の天気`;
+  if(small) small.textContent = "天気を取得できませんでした";
+  if(icon) icon.textContent = "☁️";
+  setWeatherEffect(3);
   temp.textContent = "--℃";
   rain.textContent = "--%";
   wind.textContent = "--m";
+  if(forecast){
+    forecast.innerHTML = `
+      <div class="forecast-card"><strong>今日</strong><span>取得失敗</span></div>
+      <div class="forecast-card"><strong>明日</strong><span>取得失敗</span></div>
+      <div class="forecast-card"><strong>明後日</strong><span>取得失敗</span></div>
+    `;
+  }
  }
 }
 
