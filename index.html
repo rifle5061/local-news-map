@@ -21,7 +21,7 @@ html,body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
 }
 body{line-height:1.55}
-button,a,input,select{touch-action:manipulation}
+button,a,select{touch-action:manipulation}
 a{color:inherit}
 .page{
   width:min(100%,1180px);
@@ -38,7 +38,7 @@ a{color:inherit}
 }
 .site-title{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:12px;
   margin-bottom:14px;
@@ -51,8 +51,42 @@ a{color:inherit}
 }
 h1{font-size:28px;line-height:1.15;margin:0;font-weight:900}
 .sub{margin:3px 0 0;color:#607089;font-size:14px;font-weight:700}
-.region{text-align:right}
-.region-name{font-size:22px;font-weight:900}
+.region{
+  text-align:left;
+  flex:1 1 520px;
+  max-width:680px;
+}
+.top-control{
+  background:rgba(255,255,255,.82);
+  border:1px solid #dce7f3;
+  border-radius:18px;
+  padding:12px;
+}
+.top-control-title{
+  font-size:13px;
+  color:#607089;
+  font-weight:900;
+  margin-bottom:7px;
+}
+.top-control-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:7px 0;
+}
+.top-control-label{
+  font-size:12px;
+  color:#607089;
+  font-weight:900;
+  margin-right:2px;
+}
+.region-name{
+  font-size:17px;
+  font-weight:900;
+  margin-top:8px;
+  color:#172033;
+}
 .region-note{color:#607089;font-size:12px}
 .weather{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px}
 .weather-main,.weather-box{
@@ -68,81 +102,63 @@ h1{font-size:28px;line-height:1.15;margin:0;font-weight:900}
 .weather-box strong{display:block;font-size:26px;line-height:1.1}
 .weather-box span{color:#607089;font-size:13px}
 
-.controls{
-  background:#fff;
-  border:1px solid #dce7f3;
-  border-radius:22px;
+.control-card{
+  background:#fff;border:1px solid #dce7f3;border-radius:22px;
+  padding:14px 16px;margin-bottom:14px;
   box-shadow:0 8px 24px rgba(20,45,90,.06);
-  padding:14px;
-  margin-bottom:14px;
 }
 .control-row{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
   align-items:center;
-  margin-bottom:10px;
+  margin:8px 0;
 }
-.control-row:last-child{margin-bottom:0}
-.label{
-  font-size:13px;
+.control-title{
   font-weight:900;
-  color:#4d5b70;
+  color:#273449;
   margin-right:2px;
 }
-.segment{
-  display:inline-flex;
-  gap:6px;
-  background:#f2f6fb;
+.mode-btn,.scope-btn,.geo-btn{
+  appearance:none;
   border:1px solid #dce7f3;
+  background:#f3f7fc;
+  color:#273449;
   border-radius:999px;
-  padding:5px;
-}
-.seg-btn,.range-btn{
-  border:none;
-  background:transparent;
-  border-radius:999px;
-  padding:8px 12px;
+  padding:9px 13px;
   font-weight:900;
-  color:#344256;
   cursor:pointer;
 }
-.seg-btn.active,.range-btn.active{
+.mode-btn.active,.scope-btn.active{
   background:#1f7cff;
   color:#fff;
-  box-shadow:0 4px 12px rgba(31,124,255,.22);
+  border-color:#1f7cff;
 }
-.location-btn{
-  border:none;
-  border-radius:999px;
-  background:#16a34a;
-  color:#fff;
-  padding:10px 14px;
-  font-weight:900;
-  cursor:pointer;
+.geo-btn{
+  background:#eaf7ef;
+  color:#0f7a35;
+  border-color:#cdeed9;
 }
 .pref-select{
+  appearance:none;
   border:1px solid #dce7f3;
-  background:#fff;
+  background:#f8fafc;
+  color:#273449;
   border-radius:999px;
-  padding:9px 12px;
-  font-weight:800;
-  color:#253248;
+  padding:9px 34px 9px 13px;
+  font-weight:900;
+  max-width:220px;
 }
-.fixed-only{
+.fixed-options{
   display:none;
+  padding-top:6px;
+  border-top:1px solid #eef2f7;
 }
-body.fixed-mode .fixed-only{
-  display:flex;
-}
-.status{
-  width:100%;
-  background:#f8fbff;
-  border:1px dashed #cbd8e8;
-  border-radius:14px;
-  padding:10px 12px;
+.fixed-options.active{display:block}
+.mode-note{
   color:#607089;
   font-size:13px;
+  margin:8px 0 0;
 }
 
 .card{
@@ -173,7 +189,10 @@ body.fixed-mode .fixed-only{
   color:#273449;
   white-space:nowrap;
 }
-.check-pill input{transform:scale(1.12);accent-color:#1f7cff}
+.check-pill input{
+  transform:scale(1.12);
+  accent-color:#1f7cff;
+}
 .check-pill.crime input{accent-color:#ef4444}
 .check-pill.event input{accent-color:#22c55e}
 .check-pill.traffic input{accent-color:#f97316}
@@ -192,21 +211,6 @@ body.fixed-mode .fixed-only{
 .legend div{display:flex;gap:7px;align-items:center;margin:4px 0}
 .dot{width:13px;height:13px;border-radius:999px;display:inline-block}
 .line{width:22px;height:5px;border-radius:999px;display:inline-block}
-.news-summary{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin:14px 0 0;
-}
-.summary-pill{
-  background:#fff;
-  border:1px solid #dce7f3;
-  border-radius:999px;
-  padding:8px 12px;
-  font-weight:900;
-  color:#3d4b61;
-  font-size:13px;
-}
 .news-wrap{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -222,6 +226,14 @@ body.fixed-mode .fixed-only{
 }
 .news-col h2{
   margin:0;padding:15px 16px;font-size:19px;border-bottom:1px solid #eef2f7;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+.count-badge{
+  font-size:12px;
+  color:#607089;
+  background:#f3f7fc;
+  border-radius:999px;
+  padding:3px 8px;
 }
 .news-col.crime h2{color:#c01822}
 .news-col.event h2{color:#0f8a3a}
@@ -240,7 +252,7 @@ body.fixed-mode .fixed-only{
 }
 .empty{
   padding:16px;
-  color:#718096;
+  color:#607089;
   font-size:13px;
 }
 .info{
@@ -262,13 +274,9 @@ body.fixed-mode .fixed-only{
   display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;
   background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px;
 }
-.current-pin{
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  background:#1f7cff;
-  border:3px solid #fff;
-  box-shadow:0 0 0 5px rgba(31,124,255,.22),0 4px 12px rgba(0,0,0,.25);
+.current-marker{
+  width:18px;height:18px;border-radius:999px;background:#1f7cff;border:3px solid #fff;
+  box-shadow:0 0 0 6px rgba(31,124,255,.18),0 4px 12px rgba(0,0,0,.25);
 }
 @media(max-width:900px){
   .site-title{align-items:flex-start;flex-direction:column}
@@ -283,20 +291,30 @@ body.fixed-mode .fixed-only{
 }
 @media(max-width:520px){
   .page{padding:10px 8px 28px}
-  .top{border-radius:22px;padding:16px 12px}
+  .top,.control-card{border-radius:22px;padding:16px 12px}
   h1{font-size:25px}
   .logo{width:44px;height:44px}
   .region-name{font-size:20px}
   .weather{grid-template-columns:1fr 1fr}
   .weather-box strong{font-size:23px}
-  .control-row{align-items:flex-start}
-  .segment{overflow-x:auto;max-width:100%}
   #map{height:430px}
   .legend{left:10px;right:10px;bottom:10px}
 }
+body.normal-mode #fixedTopControls,
+body.normal-mode #scopeTopControls{
+  opacity:.45;
+}
+body.normal-mode #fixedTopControls button,
+body.normal-mode #fixedTopControls select,
+body.normal-mode #scopeTopControls button{
+  pointer-events:none;
+}
+@media(max-width:900px){
+  .region{max-width:none;width:100%}
+}
 </style>
 </head>
-<body>
+<body class="normal-mode">
 <main class="page">
 
   <section class="top">
@@ -309,8 +327,42 @@ body.fixed-mode .fixed-only{
         </div>
       </div>
       <div class="region">
-        <div class="region-name" id="regionName">全国ニュース</div>
-        <div class="region-note" id="regionNote">通常モード</div>
+        <div class="top-control">
+          <div class="top-control-title">表示設定</div>
+
+          <div class="top-control-row">
+            <span class="top-control-label">モード</span>
+            <button class="mode-btn active" id="normalModeBtn" data-mode="normal">通常モード</button>
+            <button class="mode-btn" id="fixedModeBtn" data-mode="fixed">固定モード</button>
+          </div>
+
+          <div class="top-control-row" id="fixedTopControls">
+            <span class="top-control-label">固定基準</span>
+            <button class="geo-btn" id="useLocationBtn">📍 GPS現在地</button>
+            <select class="pref-select" id="prefSelect">
+              <option value="秋田県">秋田県</option>
+              <option value="北海道">北海道</option>
+              <option value="宮城県">宮城県</option>
+              <option value="東京都">東京都</option>
+              <option value="神奈川県">神奈川県</option>
+              <option value="大阪府">大阪府</option>
+              <option value="福岡県">福岡県</option>
+              <option value="沖縄県">沖縄県</option>
+            </select>
+          </div>
+
+          <div class="top-control-row" id="scopeTopControls">
+            <span class="top-control-label">倍率</span>
+            <button class="scope-btn active" data-scope="city">同市区町村</button>
+            <button class="scope-btn" data-scope="prefecture">同県</button>
+            <button class="scope-btn" data-scope="neighbors">隣県まで</button>
+            <button class="scope-btn" data-scope="region">地方</button>
+            <button class="scope-btn" data-scope="eastwest">東/西日本</button>
+          </div>
+
+          <div class="region-name" id="regionName">全国ニュース</div>
+          <div class="region-note" id="regionNote">通常モード</div>
+        </div>
       </div>
     </div>
 
@@ -318,8 +370,8 @@ body.fixed-mode .fixed-only{
       <div class="weather-main">
         <div class="weather-icon" id="weatherIcon">☁️</div>
         <div>
-          <div class="weather-title" id="weatherTitle">天気情報</div>
-          <div class="weather-small" id="weatherSub">固定モードで地域の天気を表示</div>
+          <div class="weather-title" id="weatherTitle">地域天気</div>
+          <div class="weather-small" id="weatherSmall">通常/固定モードと表示範囲を選択</div>
         </div>
       </div>
       <div class="weather-box">
@@ -333,46 +385,6 @@ body.fixed-mode .fixed-only{
       <div class="weather-box">
         <strong id="wind">--m</strong>
         <span>風速</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="controls">
-    <div class="control-row">
-      <span class="label">表示モード</span>
-      <div class="segment" id="modeSegment">
-        <button class="seg-btn active" data-mode="normal">通常モード</button>
-        <button class="seg-btn" data-mode="fixed">固定モード</button>
-      </div>
-      <div class="status" id="modeStatus">
-        通常モード：全国ニュースを表示します。地図は自由に移動できます。
-      </div>
-    </div>
-
-    <div class="control-row fixed-only">
-      <span class="label">固定基準</span>
-      <div class="segment" id="baseSegment">
-        <button class="seg-btn active" data-base="gps">現在地</button>
-        <button class="seg-btn" data-base="pref">都道府県</button>
-      </div>
-      <button class="location-btn" id="useGpsBtn">📍 現在地を使う</button>
-      <select class="pref-select" id="prefSelect">
-        <option value="秋田県">秋田県</option>
-        <option value="東京都">東京都</option>
-        <option value="宮城県">宮城県</option>
-        <option value="大阪府">大阪府</option>
-        <option value="福岡県">福岡県</option>
-      </select>
-    </div>
-
-    <div class="control-row fixed-only">
-      <span class="label">表示範囲</span>
-      <div class="segment" id="rangeSegment">
-        <button class="range-btn active" data-range="city">同市区町村</button>
-        <button class="range-btn" data-range="pref">同県</button>
-        <button class="range-btn" data-range="neighbor">隣県まで</button>
-        <button class="range-btn" data-range="region">地方ブロック</button>
-        <button class="range-btn" data-range="eastwest">東日本/西日本</button>
       </div>
     </div>
   </section>
@@ -406,28 +418,21 @@ body.fixed-mode .fixed-only{
         <div><span class="dot" style="background:#ef4444;opacity:.45;"></span>事件・防犯：エリア表示</div>
         <div><span class="dot" style="background:#22c55e;"></span>イベント：ピン表示</div>
         <div><span class="line" style="background:#f97316;"></span>交通・渋滞：道路ライン</div>
-        <div><span class="dot" style="background:#1f7cff;"></span>現在地/固定基準</div>
       </div>
     </div>
   </section>
 
-  <div class="news-summary">
-    <div class="summary-pill" id="summaryTotal">表示ニュース：0件</div>
-    <div class="summary-pill" id="summaryMode">通常モード</div>
-    <div class="summary-pill" id="summaryRange">全国</div>
-  </div>
-
   <section class="news-wrap">
     <div class="news-col crime">
-      <h2>事件・防犯</h2>
+      <h2>事件・防犯 <span class="count-badge" id="crimeCount">0件</span></h2>
       <div id="crimeList"></div>
     </div>
     <div class="news-col event">
-      <h2>イベント</h2>
+      <h2>イベント <span class="count-badge" id="eventCount">0件</span></h2>
       <div id="eventList"></div>
     </div>
     <div class="news-col traffic">
-      <h2>交通事故・渋滞</h2>
+      <h2>交通事故・渋滞 <span class="count-badge" id="trafficCount">0件</span></h2>
       <div id="trafficList"></div>
     </div>
   </section>
@@ -440,16 +445,16 @@ body.fixed-mode .fixed-only{
       </p>
     </div>
     <div class="info-card">
-      <h3>固定モードについて</h3>
+      <h3>表示ルール</h3>
       <p>
-        固定モードでは、現在地または選択した都道府県を基準に、同市区町村・同県・隣県・地方ブロック・東日本/西日本の範囲でニュースを絞り込みます。
+        事件・防犯情報は個人宅を特定しないエリア表示、イベント情報は開催場所のピン表示、交通事故・渋滞は道路上の線や周辺表示で整理します。
       </p>
     </div>
   </section>
 
   <footer class="footer">
     <div>最終更新：<span id="updatedAt">2026/06/09 18:00</span></div>
-    <div>※このページは試作版です。表示されているニュース・天気はサンプルです。実運用時は公式情報・ニュース元を確認してください。</div>
+    <div>※このページは仕様確認用の試作版です。表示されているニュース・天気はサンプルです。実運用時は公式情報・ニュース元を確認してください。</div>
   </footer>
 
 </main>
@@ -459,80 +464,162 @@ body.fixed-mode .fixed-only{
 (() => {
   "use strict";
 
-  const prefectureMeta = {
-    "秋田県": { city:"秋田市", region:"東北", eastwest:"東日本", lat:39.7186, lon:140.1024, neighbors:["青森県","岩手県","山形県","宮城県"] },
-    "青森県": { city:"青森市", region:"東北", eastwest:"東日本", lat:40.8244, lon:140.7400, neighbors:["秋田県","岩手県"] },
-    "岩手県": { city:"盛岡市", region:"東北", eastwest:"東日本", lat:39.7036, lon:141.1527, neighbors:["青森県","秋田県","宮城県"] },
-    "宮城県": { city:"仙台市", region:"東北", eastwest:"東日本", lat:38.2682, lon:140.8694, neighbors:["岩手県","秋田県","山形県","福島県"] },
-    "山形県": { city:"山形市", region:"東北", eastwest:"東日本", lat:38.2404, lon:140.3633, neighbors:["秋田県","宮城県","福島県","新潟県"] },
-    "東京都": { city:"新宿区", region:"関東", eastwest:"東日本", lat:35.6895, lon:139.6917, neighbors:["神奈川県","埼玉県","千葉県","山梨県"] },
-    "神奈川県": { city:"横浜市", region:"関東", eastwest:"東日本", lat:35.4437, lon:139.6380, neighbors:["東京都","静岡県","山梨県"] },
-    "埼玉県": { city:"さいたま市", region:"関東", eastwest:"東日本", lat:35.8617, lon:139.6455, neighbors:["東京都","千葉県","茨城県","栃木県","群馬県","長野県","山梨県"] },
-    "千葉県": { city:"千葉市", region:"関東", eastwest:"東日本", lat:35.6074, lon:140.1065, neighbors:["東京都","埼玉県","茨城県"] },
-    "大阪府": { city:"大阪市", region:"関西", eastwest:"西日本", lat:34.6937, lon:135.5023, neighbors:["兵庫県","京都府","奈良県","和歌山県"] },
-    "京都府": { city:"京都市", region:"関西", eastwest:"西日本", lat:35.0116, lon:135.7681, neighbors:["大阪府","兵庫県","滋賀県","奈良県","三重県","福井県"] },
-    "兵庫県": { city:"神戸市", region:"関西", eastwest:"西日本", lat:34.6901, lon:135.1955, neighbors:["大阪府","京都府","岡山県","鳥取県"] },
-    "福岡県": { city:"福岡市", region:"九州", eastwest:"西日本", lat:33.5902, lon:130.4017, neighbors:["佐賀県","熊本県","大分県"] },
-    "佐賀県": { city:"佐賀市", region:"九州", eastwest:"西日本", lat:33.2494, lon:130.2988, neighbors:["福岡県","長崎県"] }
+  const prefectures = {
+    "北海道": { lat:43.0642, lon:141.3469, city:"札幌市", region:"北海道", eastwest:"east", neighbors:["青森県"] },
+    "青森県": { lat:40.8244, lon:140.7400, city:"青森市", region:"東北", eastwest:"east", neighbors:["北海道","岩手県","秋田県"] },
+    "岩手県": { lat:39.7036, lon:141.1527, city:"盛岡市", region:"東北", eastwest:"east", neighbors:["青森県","秋田県","宮城県"] },
+    "宮城県": { lat:38.2688, lon:140.8721, city:"仙台市", region:"東北", eastwest:"east", neighbors:["岩手県","秋田県","山形県","福島県"] },
+    "秋田県": { lat:39.7186, lon:140.1024, city:"秋田市", region:"東北", eastwest:"east", neighbors:["青森県","岩手県","宮城県","山形県"] },
+    "山形県": { lat:38.2404, lon:140.3633, city:"山形市", region:"東北", eastwest:"east", neighbors:["秋田県","宮城県","福島県","新潟県"] },
+    "福島県": { lat:37.7503, lon:140.4676, city:"福島市", region:"東北", eastwest:"east", neighbors:["宮城県","山形県","新潟県","栃木県","茨城県"] },
+    "東京都": { lat:35.6812, lon:139.7671, city:"千代田区", region:"関東", eastwest:"east", neighbors:["神奈川県","埼玉県","千葉県","山梨県"] },
+    "神奈川県": { lat:35.4437, lon:139.6380, city:"横浜市", region:"関東", eastwest:"east", neighbors:["東京都","静岡県","山梨県"] },
+    "大阪府": { lat:34.6937, lon:135.5023, city:"大阪市", region:"関西", eastwest:"west", neighbors:["京都府","兵庫県","奈良県","和歌山県"] },
+    "福岡県": { lat:33.5902, lon:130.4017, city:"福岡市", region:"九州", eastwest:"west", neighbors:["佐賀県","熊本県","大分県","山口県"] },
+    "沖縄県": { lat:26.2124, lon:127.6792, city:"那覇市", region:"沖縄", eastwest:"west", neighbors:[] }
   };
 
   const newsData = [
-    { id:1, category:"crime", title:"秋田市周辺で不審者情報", summary:"児童への声かけ情報。周辺を通る際は注意してください。", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"東日本", area:"秋田市周辺", time:"15:30", precision:"市区町村レベル", displayType:"area", lat:39.719, lon:140.112, radius:1200, url:"#"},
-    { id:2, category:"event", title:"秋田駅前で週末マルシェ", summary:"駅前広場で地元店舗が出店する地域イベント。", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"東日本", area:"秋田駅前広場", time:"11:00", precision:"会場レベル", displayType:"pin", lat:39.715, lon:140.127, url:"#"},
-    { id:3, category:"traffic", title:"秋田市 国道13号で事故渋滞", summary:"車両事故により周辺で渋滞が発生しています。", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"東日本", area:"国道13号 大住入口付近", time:"12:45", precision:"道路区間", displayType:"line", points:[[39.721,140.144],[39.724,140.150],[39.728,140.158]], lat:39.724, lon:140.150, url:"#"},
-    { id:4, category:"event", title:"大仙市 花火関連イベント", summary:"大仙市で地域イベントを開催予定。", prefecture:"秋田県", city:"大仙市", region:"東北", eastwest:"東日本", area:"大仙市周辺", time:"10:00", precision:"市区町村レベル", displayType:"pin", lat:39.453, lon:140.475, url:"#"},
-    { id:5, category:"crime", title:"青森市周辺で防犯注意情報", summary:"青森市内で防犯注意情報が公表されています。", prefecture:"青森県", city:"青森市", region:"東北", eastwest:"東日本", area:"青森市周辺", time:"14:10", precision:"市区町村レベル", displayType:"area", lat:40.824, lon:140.740, radius:1400, url:"#"},
-    { id:6, category:"traffic", title:"東北道 盛岡IC付近で渋滞", summary:"高速道路上で渋滞が発生。区間表示は目安です。", prefecture:"岩手県", city:"盛岡市", region:"東北", eastwest:"東日本", area:"盛岡IC付近", time:"16:20", precision:"道路区間", displayType:"line", points:[[39.700,141.070],[39.720,141.090],[39.740,141.110]], lat:39.720, lon:141.090, url:"#"},
-    { id:7, category:"event", title:"仙台市 中心部で音楽イベント", summary:"仙台市中心部の会場で音楽イベントを開催。", prefecture:"宮城県", city:"仙台市", region:"東北", eastwest:"東日本", area:"仙台市中心部", time:"18:00", precision:"会場レベル", displayType:"pin", lat:38.268, lon:140.869, url:"#"},
-    { id:8, category:"crime", title:"東京都内で強盗事件", summary:"東京都内で強盗事件。周辺エリアとして表示しています。", prefecture:"東京都", city:"新宿区", region:"関東", eastwest:"東日本", area:"新宿区周辺", time:"09:40", precision:"区レベル", displayType:"area", lat:35.690, lon:139.706, radius:900, url:"#"},
-    { id:9, category:"event", title:"大阪市でフードフェス開催", summary:"大阪市内でグルメイベントを開催。", prefecture:"大阪府", city:"大阪市", region:"関西", eastwest:"西日本", area:"大阪市中心部", time:"12:00", precision:"会場レベル", displayType:"pin", lat:34.693, lon:135.502, url:"#"},
-    { id:10, category:"traffic", title:"福岡都市高速で渋滞", summary:"福岡市内の都市高速で渋滞。道路区間を目安表示。", prefecture:"福岡県", city:"福岡市", region:"九州", eastwest:"西日本", area:"福岡市周辺", time:"17:10", precision:"道路区間", displayType:"line", points:[[33.580,130.380],[33.590,130.400],[33.600,130.420]], lat:33.590, lon:130.400, url:"#"}
+    {
+      id: 1, category: "crime", title: "秋田市周辺で不審者情報",
+      summary: "児童への声かけ情報。周辺を通る際は注意してください。",
+      area: "秋田市周辺", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
+      time: "15:30", precision: "市区町村レベル", displayType: "area",
+      lat: 39.734, lon: 140.135, radius: 1800, url: "#", source:"防犯情報"
+    },
+    {
+      id: 2, category: "event", title: "秋田駅前で週末マルシェ",
+      summary: "地元店舗が出店する地域イベント。",
+      area: "秋田駅前広場", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
+      time: "11:00", precision: "会場レベル", displayType: "pin",
+      lat: 39.7169, lon: 140.1298, url: "#", source:"イベント情報"
+    },
+    {
+      id: 3, category: "traffic", title: "秋田市 国道13号で事故渋滞",
+      summary: "車両事故により周辺で渋滞が発生しています。",
+      area: "国道13号 大住入口付近", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
+      time: "12:45", precision: "道路区間", displayType: "line",
+      points: [[39.6750,140.1115],[39.6790,140.1160],[39.6830,140.1210]],
+      lat:39.6790, lon:140.1160, url:"#", source:"交通情報"
+    },
+    {
+      id: 4, category: "event", title: "仙台市中心部で音楽イベント",
+      summary: "屋外ステージで地域音楽イベントを開催。",
+      area: "仙台市中心部", prefecture:"宮城県", city:"仙台市", region:"東北", eastwest:"east",
+      time:"13:00", precision:"会場レベル", displayType:"pin",
+      lat:38.2600, lon:140.8800, url:"#", source:"イベント情報"
+    },
+    {
+      id: 5, category: "traffic", title: "東北道 仙台宮城IC付近で渋滞",
+      summary: "事故の影響で上り線に渋滞。",
+      area:"東北道 仙台宮城IC付近", prefecture:"宮城県", city:"仙台市", region:"東北", eastwest:"east",
+      time:"12:20", precision:"道路区間", displayType:"line",
+      points:[[38.287,140.804],[38.275,140.820],[38.265,140.835]],
+      lat:38.275, lon:140.820, url:"#", source:"交通情報"
+    },
+    {
+      id: 6, category: "crime", title: "東京都内で強盗事件",
+      summary: "店舗を対象とした強盗事件。警察が捜査中です。",
+      area:"東京都内周辺", prefecture:"東京都", city:"千代田区", region:"関東", eastwest:"east",
+      time:"18:10", precision:"市区町村レベル", displayType:"area",
+      lat:35.6812, lon:139.7671, radius:1800, url:"#", source:"ニュース"
+    },
+    {
+      id: 7, category: "event", title: "横浜で週末フェス開催",
+      summary: "港周辺で開催される大型イベント。",
+      area:"横浜市中心部", prefecture:"神奈川県", city:"横浜市", region:"関東", eastwest:"east",
+      time:"10:00", precision:"会場レベル", displayType:"pin",
+      lat:35.4437, lon:139.6380, url:"#", source:"イベント情報"
+    },
+    {
+      id: 8, category: "traffic", title: "首都高速で渋滞",
+      summary: "事故の影響で一部区間が渋滞しています。",
+      area:"首都高速 都心環状線", prefecture:"東京都", city:"千代田区", region:"関東", eastwest:"east",
+      time:"17:30", precision:"道路区間", displayType:"line",
+      points:[[35.676,139.748],[35.681,139.758],[35.685,139.770]],
+      lat:35.681, lon:139.758, url:"#", source:"交通情報"
+    },
+    {
+      id: 9, category: "event", title: "大阪市でグルメイベント",
+      summary: "商業施設で期間限定イベントを開催。",
+      area:"大阪市中心部", prefecture:"大阪府", city:"大阪市", region:"関西", eastwest:"west",
+      time:"11:00", precision:"会場レベル", displayType:"pin",
+      lat:34.6937, lon:135.5023, url:"#", source:"イベント情報"
+    },
+    {
+      id:10, category:"traffic", title:"阪神高速で渋滞",
+      summary:"交通集中により一部区間で渋滞。",
+      area:"阪神高速 大阪市内", prefecture:"大阪府", city:"大阪市", region:"関西", eastwest:"west",
+      time:"16:00", precision:"道路区間", displayType:"line",
+      points:[[34.690,135.490],[34.694,135.502],[34.700,135.514]],
+      lat:34.694, lon:135.502, url:"#", source:"交通情報"
+    },
+    {
+      id:11, category:"crime", title:"福岡市周辺で防犯情報",
+      summary:"帰宅時間帯の声かけ事案。周辺の安全確認にご注意ください。",
+      area:"福岡市周辺", prefecture:"福岡県", city:"福岡市", region:"九州", eastwest:"west",
+      time:"19:10", precision:"市区町村レベル", displayType:"area",
+      lat:33.5902, lon:130.4017, radius:1800, url:"#", source:"防犯情報"
+    },
+    {
+      id:12, category:"event", title:"那覇市で地域イベント",
+      summary:"市内会場で地域交流イベントを開催。",
+      area:"那覇市中心部", prefecture:"沖縄県", city:"那覇市", region:"沖縄", eastwest:"west",
+      time:"14:00", precision:"会場レベル", displayType:"pin",
+      lat:26.2124, lon:127.6792, url:"#", source:"イベント情報"
+    }
   ];
 
   const categoryInfo = {
-    crime: { label:"事件・防犯", icon:"🛡", color:"#ef4444", listId:"crimeList", checkboxId:"showCrime" },
-    event: { label:"イベント", icon:"📅", color:"#22c55e", listId:"eventList", checkboxId:"showEvent" },
-    traffic: { label:"交通事故・渋滞", icon:"🚗", color:"#f97316", listId:"trafficList", checkboxId:"showTraffic" }
+    crime: { label: "事件・防犯", icon: "🛡", color: "#ef4444", listId: "crimeList", countId: "crimeCount", checkboxId: "showCrime" },
+    event: { label: "イベント", icon: "📅", color: "#22c55e", listId: "eventList", countId: "eventCount", checkboxId: "showEvent" },
+    traffic: { label: "交通事故・渋滞", icon: "🚗", color: "#f97316", listId: "trafficList", countId: "trafficCount", checkboxId: "showTraffic" }
   };
 
-  const app = {
+  const state = {
     mode: "normal",
-    base: "gps",
-    range: "city",
-    selectedPref: "秋田県",
-    currentPref: "秋田県",
-    currentCity: "秋田市",
-    currentRegion: "東北",
-    currentEastWest: "東日本",
-    currentLat: 39.7186,
-    currentLon: 140.1024,
+    fixedBase: "prefecture",
+    selectedPrefecture: "秋田県",
+    currentLocation: null,
+    currentPrefecture: null,
+    currentCity: null,
+    scope: "city",
     currentMarker: null
   };
 
   const map = L.map("map", {
-    zoomControl:true,
-    minZoom:5,
-    maxZoom:18
-  }).setView([37.8, 138.5], 5);
+    zoomControl: true,
+    minZoom: 4,
+    maxZoom: 18
+  }).setView([36.2, 138.2], 5);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:"&copy; OpenStreetMap contributors"
+    attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
   const layers = L.layerGroup().addTo(map);
-  const baseLayer = L.layerGroup().addTo(map);
 
-  function getPrefMeta(pref) {
-    return prefectureMeta[pref] || prefectureMeta["秋田県"];
+  function nearestPrefecture(lat, lon) {
+    let best = null;
+    let bestDist = Infinity;
+    Object.entries(prefectures).forEach(([name, p]) => {
+      const d = Math.pow(lat - p.lat, 2) + Math.pow(lon - p.lon, 2);
+      if (d < bestDist) {
+        bestDist = d;
+        best = name;
+      }
+    });
+    return best || "秋田県";
   }
 
-  function activeBaseMeta() {
-    if (app.mode === "normal") return null;
-    if (app.base === "pref") {
-      const m = getPrefMeta(app.selectedPref);
-      return { pref: app.selectedPref, city: m.city, region: m.region, eastwest: m.eastwest, lat: m.lat, lon: m.lon, neighbors: m.neighbors };
-    }
-    return { pref: app.currentPref, city: app.currentCity, region: app.currentRegion, eastwest: app.currentEastWest, lat: app.currentLat, lon: app.currentLon, neighbors: getPrefMeta(app.currentPref).neighbors };
+  function basePrefecture() {
+    if (state.fixedBase === "current" && state.currentPrefecture) return state.currentPrefecture;
+    return state.selectedPrefecture;
+  }
+
+  function baseCity() {
+    if (state.fixedBase === "current" && state.currentCity) return state.currentCity;
+    return prefectures[basePrefecture()]?.city || "";
   }
 
   function isVisibleCategory(category) {
@@ -540,30 +627,53 @@ body.fixed-mode .fixed-only{
     return checkbox ? checkbox.checked : true;
   }
 
-  function isInFixedRange(item) {
-    if (app.mode === "normal") return true;
-    const base = activeBaseMeta();
-    if (!base) return true;
+  function geoFilteredItems() {
+    if (state.mode === "normal") {
+      return newsData;
+    }
 
-    if (app.range === "city") return item.prefecture === base.pref && item.city === base.city;
-    if (app.range === "pref") return item.prefecture === base.pref;
-    if (app.range === "neighbor") return item.prefecture === base.pref || (base.neighbors || []).includes(item.prefecture);
-    if (app.range === "region") return item.region === base.region;
-    if (app.range === "eastwest") return item.eastwest === base.eastwest;
-    return true;
+    const pref = basePrefecture();
+    const prefInfo = prefectures[pref];
+    const city = baseCity();
+
+    if (!prefInfo) return newsData;
+
+    if (state.scope === "city") {
+      if (city) return newsData.filter(item => item.city === city && item.prefecture === pref);
+      return newsData.filter(item => item.prefecture === pref);
+    }
+
+    if (state.scope === "prefecture") {
+      return newsData.filter(item => item.prefecture === pref);
+    }
+
+    if (state.scope === "neighbors") {
+      const allowed = new Set([pref, ...(prefInfo.neighbors || [])]);
+      return newsData.filter(item => allowed.has(item.prefecture));
+    }
+
+    if (state.scope === "region") {
+      return newsData.filter(item => item.region === prefInfo.region);
+    }
+
+    if (state.scope === "eastwest") {
+      return newsData.filter(item => item.eastwest === prefInfo.eastwest);
+    }
+
+    return newsData;
   }
 
-  function filteredItems() {
-    return newsData.filter(item => isVisibleCategory(item.category) && isInFixedRange(item));
+  function mapItems() {
+    return geoFilteredItems().filter(item => isVisibleCategory(item.category));
   }
 
   function popupHtml(item) {
     const info = categoryInfo[item.category];
     return `
       <div class="popup-title">${info.icon} ${item.title}</div>
-      <div class="popup-meta">${item.area} / ${item.time} / 位置精度：${item.precision}</div>
+      <div class="popup-meta">${item.area} / ${item.time} / 位置精度：${item.precision}<br>情報元：${item.source || "ニュース"}</div>
       <div style="margin-bottom:8px;">${item.summary}</div>
-      <a class="popup-link" href="${item.url}">ニュースを見る</a>
+      <a class="popup-link" href="${item.url}" target="_blank" rel="noopener noreferrer">ニュースを見る</a>
     `;
   }
 
@@ -573,12 +683,12 @@ body.fixed-mode .fixed-only{
 
     if (item.displayType === "area") {
       L.circle([item.lat, item.lon], {
-        radius:item.radius || 700,
+        radius: item.radius || 700,
         color,
-        weight:2,
-        opacity:.95,
-        fillColor:color,
-        fillOpacity:.18
+        weight: 2,
+        opacity: 0.95,
+        fillColor: color,
+        fillOpacity: 0.18
       }).bindPopup(popupHtml(item)).addTo(layers);
       return;
     }
@@ -586,8 +696,8 @@ body.fixed-mode .fixed-only{
     if (item.displayType === "line") {
       L.polyline(item.points, {
         color,
-        weight:8,
-        opacity:.9
+        weight: 8,
+        opacity: 0.9
       }).bindPopup(popupHtml(item)).addTo(layers);
       return;
     }
@@ -595,56 +705,43 @@ body.fixed-mode .fixed-only{
     L.marker([item.lat, item.lon]).bindPopup(popupHtml(item)).addTo(layers);
   }
 
-  function drawBaseMarker() {
-    baseLayer.clearLayers();
-    if (app.mode !== "fixed") return;
-
-    const base = activeBaseMeta();
-    const icon = L.divIcon({
-      className:"",
-      html:'<div class="current-pin"></div>',
-      iconSize:[18,18],
-      iconAnchor:[9,9]
-    });
-
-    app.currentMarker = L.marker([base.lat, base.lon], { icon })
-      .bindPopup(`<b>固定基準</b><br>${app.base === "gps" ? "現在地" : base.pref}<br>${base.city} / ${base.region}`)
-      .addTo(baseLayer);
-  }
-
-  function renderMap() {
-    layers.clearLayers();
-    drawBaseMarker();
-
-    const items = filteredItems();
-    items.forEach(addMapItem);
-
+  function focusBounds(items) {
     const points = [];
     items.forEach(item => {
       if (item.points) item.points.forEach(p => points.push(p));
       else points.push([item.lat, item.lon]);
     });
 
-    if (app.mode === "fixed") {
-      const base = activeBaseMeta();
-      points.push([base.lat, base.lon]);
+    if (state.currentLocation && state.mode === "fixed" && state.fixedBase === "current") {
+      points.push([state.currentLocation.lat, state.currentLocation.lon]);
     }
 
     if (points.length) {
       map.fitBounds(L.latLngBounds(points).pad(0.18));
-    } else if (app.mode === "fixed") {
-      const base = activeBaseMeta();
-      map.setView([base.lat, base.lon], app.range === "city" ? 12 : app.range === "pref" ? 8 : 6);
-    } else {
-      map.setView([37.8, 138.5], 5);
+      return;
     }
+
+    if (state.mode === "fixed") {
+      const p = prefectures[basePrefecture()];
+      if (p) map.setView([p.lat, p.lon], state.scope === "city" ? 11 : 7);
+      return;
+    }
+
+    map.setView([36.2, 138.2], 5);
+  }
+
+  function renderMap() {
+    layers.clearLayers();
+    const items = mapItems();
+    items.forEach(addMapItem);
+    focusBounds(items);
   }
 
   function focusItem(item) {
     if (item.points) {
       map.fitBounds(L.latLngBounds(item.points).pad(0.35));
     } else {
-      map.setView([item.lat, item.lon], item.category === "event" ? 16 : 14);
+      map.setView([item.lat, item.lon], item.category === "event" ? 15 : 13);
     }
 
     setTimeout(() => {
@@ -654,35 +751,39 @@ body.fixed-mode .fixed-only{
         .openOn(map);
     }, 150);
 
-    document.getElementById("map").scrollIntoView({ behavior:"smooth", block:"center" });
+    document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function renderNewsLists() {
+    const items = geoFilteredItems();
+
     Object.entries(categoryInfo).forEach(([category, info]) => {
       const box = document.getElementById(info.listId);
+      const count = document.getElementById(info.countId);
       box.innerHTML = "";
 
-      const items = filteredItems().filter(item => item.category === category);
+      const categoryItems = items.filter(item => item.category === category);
+      count.textContent = `${categoryItems.length}件`;
 
-      if (!items.length) {
-        box.innerHTML = `<div class="empty">表示対象のニュースはありません。</div>`;
+      if (!categoryItems.length) {
+        box.innerHTML = `<div class="empty">この範囲のニュースはありません。</div>`;
         return;
       }
 
-      items.forEach(item => {
+      categoryItems.forEach(item => {
         const btn = document.createElement("button");
         btn.className = "news-item";
         btn.innerHTML = `
           <p class="news-title">${item.title}</p>
           <p class="news-text">${item.summary}</p>
-          <div class="news-meta">${item.area} / ${item.time} / 位置精度：${item.precision}</div>
+          <div class="news-meta">${item.area} / ${item.time} / 位置精度：${item.precision}<br>情報元：${item.source || "ニュース"}</div>
           <span class="action">地図で見る</span>
         `;
         btn.onclick = () => {
           const checkbox = document.getElementById(categoryInfo[item.category].checkboxId);
           if (checkbox && !checkbox.checked) {
             checkbox.checked = true;
-            renderAll();
+            renderMap();
           }
           focusItem(item);
         };
@@ -691,129 +792,129 @@ body.fixed-mode .fixed-only{
     });
   }
 
-  function updateUiText() {
-    document.body.classList.toggle("fixed-mode", app.mode === "fixed");
+  function updateHeader() {
+    const regionName = document.getElementById("regionName");
+    const regionNote = document.getElementById("regionNote");
+    const modeNote = document.getElementById("modeNote");
 
-    document.querySelectorAll("#modeSegment .seg-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.mode === app.mode);
-    });
-    document.querySelectorAll("#baseSegment .seg-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.base === app.base);
-    });
-    document.querySelectorAll("#rangeSegment .range-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.range === app.range);
-    });
-
-    const base = activeBaseMeta();
-    const rangeLabel = {
-      city:"同市区町村",
-      pref:"同県",
-      neighbor:"隣県まで",
-      region:"地方ブロック",
-      eastwest:"東日本/西日本"
-    }[app.range];
-
-    if (app.mode === "normal") {
-      document.getElementById("regionName").textContent = "全国ニュース";
-      document.getElementById("regionNote").textContent = "通常モード";
-      document.getElementById("weatherTitle").textContent = "天気情報";
-      document.getElementById("weatherSub").textContent = "固定モードで地域の天気を表示";
+    if (state.mode === "normal") {
+      regionName.textContent = "全国ニュース";
+      regionNote.textContent = "通常モード";
+      modeNote.textContent = "通常モードでは全国ニュースを表示します。";
+      document.getElementById("weatherTitle").textContent = "全国表示";
+      document.getElementById("weatherSmall").textContent = "通常/固定モードと表示範囲を選択";
       document.getElementById("temp").textContent = "--℃";
       document.getElementById("rain").textContent = "--%";
       document.getElementById("wind").textContent = "--m";
-      document.getElementById("modeStatus").textContent = "通常モード：全国ニュースを表示します。地図は自由に移動できます。";
-      document.getElementById("summaryMode").textContent = "通常モード";
-      document.getElementById("summaryRange").textContent = "全国";
-    } else {
-      document.getElementById("regionName").textContent = app.base === "gps" ? `${base.city}周辺` : `${base.pref}`;
-      document.getElementById("regionNote").textContent = `固定モード / ${rangeLabel}`;
-      document.getElementById("weatherTitle").textContent = app.base === "gps" ? `${base.city}の天気` : `${base.pref}の天気`;
-      document.getElementById("weatherSub").textContent = "現在はサンプル天気です";
-      document.getElementById("temp").textContent = base.pref === "秋田県" ? "16℃" : "22℃";
-      document.getElementById("rain").textContent = base.pref === "秋田県" ? "40%" : "30%";
-      document.getElementById("wind").textContent = "3m";
-      document.getElementById("modeStatus").textContent = `固定モード：${app.base === "gps" ? "現在地" : base.pref}を基準に、${rangeLabel}のニュースだけ表示します。`;
-      document.getElementById("summaryMode").textContent = `固定：${app.base === "gps" ? "現在地" : base.pref}`;
-      document.getElementById("summaryRange").textContent = rangeLabel;
-    }
-
-    document.getElementById("summaryTotal").textContent = `表示ニュース：${filteredItems().length}件`;
-  }
-
-  function renderAll() {
-    updateUiText();
-    renderMap();
-    renderNewsLists();
-  }
-
-  function reversePrefFromPosition(lat, lon) {
-    // 試作版の簡易判定。実運用では逆ジオコーディング/APIで判定。
-    if (lat > 39 && lat < 40.5 && lon > 139.5 && lon < 141.2) return "秋田県";
-    if (lat > 35 && lat < 36.2 && lon > 139 && lon < 140.3) return "東京都";
-    if (lat > 33 && lat < 35.5 && lon > 134.5 && lon < 136.5) return "大阪府";
-    if (lat > 33 && lat < 34.2 && lon > 129.8 && lon < 131) return "福岡県";
-    return "秋田県";
-  }
-
-  document.getElementById("modeSegment").addEventListener("click", ev => {
-    const btn = ev.target.closest("[data-mode]");
-    if (!btn) return;
-    app.mode = btn.dataset.mode;
-    renderAll();
-  });
-
-  document.getElementById("baseSegment").addEventListener("click", ev => {
-    const btn = ev.target.closest("[data-base]");
-    if (!btn) return;
-    app.base = btn.dataset.base;
-    renderAll();
-  });
-
-  document.getElementById("rangeSegment").addEventListener("click", ev => {
-    const btn = ev.target.closest("[data-range]");
-    if (!btn) return;
-    app.range = btn.dataset.range;
-    renderAll();
-  });
-
-  document.getElementById("prefSelect").addEventListener("change", ev => {
-    app.selectedPref = ev.target.value;
-    app.base = "pref";
-    renderAll();
-  });
-
-  document.getElementById("layerChecks").addEventListener("change", renderAll);
-
-  document.getElementById("useGpsBtn").addEventListener("click", () => {
-    app.mode = "fixed";
-    app.base = "gps";
-
-    if (!navigator.geolocation) {
-      alert("このブラウザでは現在地取得に対応していません。");
-      renderAll();
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        app.currentLat = pos.coords.latitude;
-        app.currentLon = pos.coords.longitude;
-        app.currentPref = reversePrefFromPosition(app.currentLat, app.currentLon);
-        const meta = getPrefMeta(app.currentPref);
-        app.currentCity = meta.city;
-        app.currentRegion = meta.region;
-        app.currentEastWest = meta.eastwest;
-        renderAll();
-      },
-      () => {
-        alert("現在地を取得できませんでした。都道府県選択を使ってください。");
-        renderAll();
-      },
-      { enableHighAccuracy:true, timeout:8000, maximumAge:300000 }
-    );
+    const pref = basePrefecture();
+    const city = baseCity();
+    const scopeLabel = {
+      city: "同市区町村",
+      prefecture: "同県",
+      neighbors: "隣県まで",
+      region: "地方ブロック",
+      eastwest: "東日本 / 西日本"
+    }[state.scope];
+
+    regionName.textContent = `${pref} ${scopeLabel}`;
+    regionNote.textContent = state.fixedBase === "current" ? "現在地固定" : "都道府県固定";
+    modeNote.textContent = `固定モード：${state.fixedBase === "current" ? "現在地" : pref}を基準に「${scopeLabel}」のニュースを表示中。`;
+
+    if (pref === "秋田県") {
+      document.getElementById("weatherTitle").textContent = "おおむね曇り";
+      document.getElementById("weatherSmall").textContent = "秋田市周辺の天気";
+      document.getElementById("temp").textContent = "16℃";
+      document.getElementById("rain").textContent = "--%";
+      document.getElementById("wind").textContent = "--m";
+    } else {
+      document.getElementById("weatherTitle").textContent = `${pref}の天気`;
+      document.getElementById("weatherSmall").textContent = "天気データ連携予定";
+      document.getElementById("temp").textContent = "--℃";
+      document.getElementById("rain").textContent = "--%";
+      document.getElementById("wind").textContent = "--m";
+    }
+  }
+
+  function rerenderAll() {
+    updateHeader();
+    renderNewsLists();
+    renderMap();
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    document.body.classList.toggle("normal-mode", mode === "normal");
+    document.body.classList.toggle("fixed-mode", mode === "fixed");
+    document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+    rerenderAll();
+  }
+
+  document.getElementById("normalModeBtn").addEventListener("click", () => setMode("normal"));
+  document.getElementById("fixedModeBtn").addEventListener("click", () => setMode("fixed"));
+
+  document.getElementById("prefSelect").addEventListener("change", ev => {
+    state.fixedBase = "prefecture";
+    state.selectedPrefecture = ev.target.value;
+    setMode("fixed");
   });
 
-  renderAll();
+  document.querySelectorAll(".scope-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.scope = btn.dataset.scope;
+      document.querySelectorAll(".scope-btn").forEach(b => b.classList.toggle("active", b === btn));
+      setMode("fixed");
+    });
+  });
+
+  document.getElementById("layerChecks").addEventListener("change", renderMap);
+
+  document.getElementById("useLocationBtn").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("このブラウザでは現在地を取得できません。");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const pref = nearestPrefecture(lat, lon);
+
+      state.fixedBase = "current";
+      state.currentLocation = { lat, lon };
+      state.currentPrefecture = pref;
+      state.currentCity = prefectures[pref]?.city || "";
+      state.selectedPrefecture = pref;
+      document.getElementById("prefSelect").value = Object.prototype.hasOwnProperty.call(prefectures, pref) ? pref : "秋田県";
+
+      if (state.currentMarker) {
+        map.removeLayer(state.currentMarker);
+      }
+
+      const icon = L.divIcon({
+        className: "",
+        html: '<div class="current-marker"></div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      state.currentMarker = L.marker([lat, lon], { icon }).bindPopup("現在地").addTo(map);
+
+      setMode("fixed");
+      map.setView([lat, lon], 12);
+    }, () => {
+      alert("現在地を取得できませんでした。位置情報の許可を確認してください。");
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000
+    });
+  });
+
+  renderNewsLists();
+  renderMap();
+  updateHeader();
 })();
 </script>
 </body>
