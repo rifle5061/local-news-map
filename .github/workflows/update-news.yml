@@ -1,1 +1,27 @@
+name: Update news data
 
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 21 * * *" # JST 06:00
+
+permissions:
+  contents: write
+
+jobs:
+  build-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build news JSON
+        run: |
+          python scripts/build_news.py
+          python -m json.tool data/news.json > /tmp/news.json
+
+      - name: Commit updated news data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update news data"
+          file_pattern: data/news.json
