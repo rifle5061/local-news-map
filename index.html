@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>地域ニュースマップ</title>
+<meta name="description" content="地域の事件・防犯、イベント、交通事故・渋滞情報を地図で確認できる生活安全ニュースマップです。">
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;background:#f5f8fc;color:#162033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
+body{line-height:1.55}button,a{touch-action:manipulation}a{color:inherit}
+.page{width:min(100%,1280px);margin:0 auto;padding:18px 14px 36px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;color:#fff;font-size:28px;font-weight:900;background:linear-gradient(135deg,#1f7cff,#34c759);box-shadow:0 10px 24px rgba(31,124,255,.22)}
+h1{font-size:30px;margin:0;line-height:1.15;font-weight:900}.sub{margin:3px 0 0;color:#5d6b80;font-weight:700}
+.header-links{display:flex;gap:14px;color:#4d5a70;font-size:14px;white-space:nowrap}
+.header-links a{text-decoration:none;background:#fff;border:1px solid #dce5f0;border-radius:999px;padding:8px 12px}
+.toolbar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #dce5f0;border-radius:18px;padding:10px;margin-bottom:12px;box-shadow:0 8px 24px rgba(20,45,90,.06)}
+.tab-row{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1 1 auto}.tab-row::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:none;border-radius:12px;padding:10px 14px;font-weight:900;background:#eef3f9;color:#273449;cursor:pointer}
+.tab.active{background:#1f7cff;color:#fff}.tab.crime.active{background:#e5484d}.tab.event.active{background:#16a34a}.tab.traffic.active{background:#f97316}
+.search{flex:0 1 320px;display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #dce5f0;border-radius:14px;padding:0 10px}
+.search input{width:100%;border:none;outline:none;background:transparent;padding:11px 0;font-size:15px}
+.layout{display:grid;grid-template-columns:1fr 360px;gap:14px}
+.map-card,.news-card,.info-card{background:#fff;border:1px solid #dce5f0;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(20,45,90,.06)}
+.map-wrap{position:relative}#map{width:100%;height:660px;background:#e9eef5}
+.legend{position:absolute;z-index:500;left:16px;bottom:16px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:14px;box-shadow:0 8px 24px rgba(20,45,90,.12);padding:12px;font-size:13px;color:#344056}
+.legend div{display:flex;gap:8px;align-items:center;margin:4px 0}.dot{width:14px;height:14px;border-radius:999px;display:inline-block}.line{width:18px;height:4px;border-radius:999px;display:inline-block}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 12px;border-bottom:1px solid #eef2f7}.panel-head h2{margin:0;font-size:20px}
+.muted{color:#6b778c;font-size:13px}.news-list{display:grid;max-height:660px;overflow-y:auto}
+.news-item{display:block;width:100%;text-align:left;border:none;border-bottom:1px solid #eef2f7;background:#fff;padding:15px 16px;cursor:pointer}
+.news-item:hover{background:#f8fbff}.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:900;margin-bottom:7px}
+.badge.crime{background:#ffe5e7;color:#c01822}.badge.event{background:#e5f8ec;color:#0f8a3a}.badge.traffic{background:#fff1df;color:#c95b00}
+.news-title{font-size:16px;font-weight:900;margin:0 0 5px}.news-text{color:#4f5d73;margin:0 0 6px;font-size:13px}.news-meta{color:#8390a4;font-size:12px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.info-card{padding:18px}
+.info-icon{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:26px;margin-bottom:10px}.info-card h3{margin:0 0 6px;font-size:18px}.info-card p{margin:0;color:#4f5d73;font-size:14px}
+.notice{color:#69778c;font-size:12px;text-align:center;padding:18px 8px 0}
+.leaflet-popup-content-wrapper{border-radius:16px;box-shadow:0 12px 30px rgba(20,45,90,.2)}.popup-title{font-weight:900;font-size:15px;margin-bottom:4px}.popup-meta{color:#66758a;font-size:12px;margin-bottom:8px}.popup-link{display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px}
+@media(max-width:900px){.header{align-items:flex-start;flex-direction:column}.toolbar{flex-direction:column;align-items:stretch}.search{flex:auto}.layout{grid-template-columns:1fr}#map{height:500px}.news-list{max-height:none}.cards{grid-template-columns:1fr}}
+@media(max-width:520px){.page{padding:12px 10px 30px}h1{font-size:26px}.logo{width:44px;height:44px;font-size:24px}.header-links{width:100%;overflow-x:auto}.toolbar{border-radius:16px}#map{height:440px}.legend{left:10px;right:10px;bottom:10px;font-size:12px}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="header"><div class="brand"><div class="logo">🗺</div><div><h1>地域ニュースマップ</h1><p class="sub">地域の安全と情報を、地図でつなぐ</p></div></div><nav class="header-links"><a href="#how">使い方</a><a href="#about">このサイトについて</a><a href="#notice">注意事項</a></nav></header>
+<section class="toolbar"><div class="tab-row" id="tabs"><button class="tab active" data-filter="all">すべて</button><button class="tab crime" data-filter="crime">🛡 事件・防犯</button><button class="tab event" data-filter="event">📅 イベント</button><button class="tab traffic" data-filter="traffic">🚗 交通事故・渋滞</button></div><label class="search">🔍<input id="searchInput" type="search" placeholder="場所・キーワードを検索"></label></section>
+<section class="layout"><div class="map-card"><div class="map-wrap"><div id="map"></div><div class="legend"><div><span class="dot" style="background:#ef4444;opacity:.45;"></span>事件・防犯：エリア表示</div><div><span class="dot" style="background:#22c55e;"></span>イベント：ピン表示</div><div><span class="line" style="background:#f97316;"></span>交通事故・渋滞：円/線表示</div></div></div></div><aside class="news-card"><div class="panel-head"><h2>新着ニュース</h2><span class="muted" id="countText">0件</span></div><div class="news-list" id="newsList"></div></aside></section>
+<section class="cards" id="how"><div class="info-card"><div class="info-icon" style="background:#ffe5e7;color:#c01822;">🛡</div><h3>事件・防犯情報</h3><p>身の安全確認を目的に、個人宅を特定しない形で周辺エリアを表示します。</p></div><div class="info-card"><div class="info-icon" style="background:#e5f8ec;color:#0f8a3a;">📅</div><h3>イベント情報</h3><p>祭り・展示・地域イベントなど、開催場所が分かる情報はピンで表示します。</p></div><div class="info-card"><div class="info-icon" style="background:#fff1df;color:#c95b00;">🚗</div><h3>交通事故・渋滞情報</h3><p>事故・渋滞・通行止めなど、移動前に確認したい情報を地図に表示します。</p></div></section>
+<section class="info-card" id="about" style="margin-top:14px;"><h3>このサイトについて</h3><p>地域ニュースマップは、公開ニュースをもとに、イベント情報の共有、渋滞回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。事件や防犯に関わる情報は、ピンポイント表示ではなく、可能な範囲で発生エリアとして表示する設計です。</p></section>
+<section class="info-card" id="notice" style="margin-top:14px;"><h3>注意事項</h3><p>このページは試作版です。掲載情報はサンプルであり、実際の事件・事故・イベント情報ではありません。実運用時は、各ニュース媒体・警察・自治体・道路交通情報などの公式情報を必ず確認してください。</p></section>
+<p class="notice">© 地域ニュースマップ 試作版 / 公開ニュースをもとにした生活安全・地域情報確認サイト</p>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(()=>{"use strict";
+const newsData=[
+{id:1,category:"crime",typeLabel:"事件・防犯",title:"〇〇町で強盗事件",summary:"本日午後、〇〇町付近で強盗事件が発生しました。警察が捜査中です。",area:"〇〇市〇〇町周辺",time:"15:30",precision:"町名レベル",displayType:"area",lat:39.719,lon:140.112,radius:850,url:"#"},
+{id:2,category:"crime",typeLabel:"事件・防犯",title:"不審者の目撃情報",summary:"小学校付近で不審者の目撃情報がありました。周辺を通る際はご注意ください。",area:"〇〇小学校周辺",time:"13:10",precision:"周辺エリア",displayType:"area",lat:39.734,lon:140.135,radius:600,url:"#"},
+{id:3,category:"event",typeLabel:"イベント",title:"〇〇公園 桜まつり開催中",summary:"〇〇公園で桜まつりが開催されています。キッチンカーやステージイベントもあります。",area:"〇〇市〇〇公園",time:"14:50",precision:"会場レベル",displayType:"pin",lat:39.706,lon:140.102,url:"#"},
+{id:4,category:"event",typeLabel:"イベント",title:"駅前広場でマルシェ開催",summary:"地元店舗が出店する週末マルシェが開催されています。",area:"〇〇駅前広場",time:"10:00",precision:"会場レベル",displayType:"pin",lat:39.715,lon:140.127,url:"#"},
+{id:5,category:"traffic",typeLabel:"交通事故・渋滞",title:"国道〇〇号で交通事故",summary:"国道〇〇号で車両事故が発生しています。周辺道路で渋滞が発生しています。",area:"国道〇〇号 〇〇付近",time:"12:45",precision:"道路周辺",displayType:"circle",lat:39.723,lon:140.153,radius:420,url:"#"},
+{id:6,category:"traffic",typeLabel:"交通事故・渋滞",title:"〇〇IC〜〇〇IC間で渋滞",summary:"上り線で車両事故があり、約5kmの渋滞が発生しています。",area:"〇〇自動車道",time:"12:20",precision:"道路区間",displayType:"line",points:[[39.698,140.142],[39.704,140.158],[39.712,140.171]],lat:39.704,lon:140.158,url:"#"}
+];
+const icons={crime:"🛡",event:"📅",traffic:"🚗"},colors={crime:"#ef4444",event:"#22c55e",traffic:"#f97316"};
+const map=L.map("map",{zoomControl:true,minZoom:11,maxZoom:18}).setView([39.718,140.128],13);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
+const layers=L.layerGroup().addTo(map);let currentFilter="all",searchText="";
+function badgeClass(c){return c==="crime"?"crime":c==="event"?"event":"traffic"}
+function popupHtml(item){return `<div class="popup-title">${icons[item.category]} ${item.title}</div><div class="popup-meta">${item.area} / ${item.time}配信 / 位置精度：${item.precision}</div><div style="margin-bottom:8px;">${item.summary}</div><a class="popup-link" href="${item.url}">ニュースを見る</a>`}
+function addMapItem(item){const color=colors[item.category];if(item.displayType==="area"){L.circle([item.lat,item.lon],{radius:item.radius||700,color,weight:2,opacity:.9,fillColor:color,fillOpacity:.18}).bindPopup(popupHtml(item)).addTo(layers);return}if(item.displayType==="line"){L.polyline(item.points,{color,weight:6,opacity:.92}).bindPopup(popupHtml(item)).addTo(layers);return}if(item.displayType==="circle"){L.circle([item.lat,item.lon],{radius:item.radius||350,color,weight:3,opacity:.9,fillColor:color,fillOpacity:.2}).bindPopup(popupHtml(item)).addTo(layers);return}L.marker([item.lat,item.lon]).bindPopup(popupHtml(item)).addTo(layers)}
+function matchItem(item){const filterOk=currentFilter==="all"||item.category===currentFilter;const text=`${item.title} ${item.summary} ${item.area}`.toLowerCase();return filterOk&&(!searchText||text.includes(searchText.toLowerCase()))}
+function render(){layers.clearLayers();const list=newsData.filter(matchItem);list.forEach(addMapItem);renderList(list);document.getElementById("countText").textContent=`${list.length}件`;if(list.length){const points=[];list.forEach(item=>{if(item.points)item.points.forEach(p=>points.push(p));else points.push([item.lat,item.lon])});map.fitBounds(L.latLngBounds(points).pad(.18))}}
+function renderList(list){const box=document.getElementById("newsList");box.innerHTML="";if(!list.length){box.innerHTML=`<div class="news-item"><p class="news-title">該当するニュースがありません</p><p class="news-text">カテゴリや検索条件を変更してください。</p></div>`;return}list.forEach(item=>{const btn=document.createElement("button");btn.className="news-item";btn.innerHTML=`<span class="badge ${badgeClass(item.category)}">${icons[item.category]} ${item.typeLabel}</span><p class="news-title">${item.title}</p><p class="news-text">${item.summary}</p><div class="news-meta">${item.area} / ${item.time} / 位置精度：${item.precision}</div>`;btn.onclick=()=>{if(item.points){map.fitBounds(L.latLngBounds(item.points).pad(.35))}else{map.setView([item.lat,item.lon],item.category==="event"?16:14)}setTimeout(()=>{L.popup().setLatLng(item.points?item.points[Math.floor(item.points.length/2)]:[item.lat,item.lon]).setContent(popupHtml(item)).openOn(map)},150);if(window.innerWidth<900){document.getElementById("map").scrollIntoView({behavior:"smooth",block:"center"})}};box.appendChild(btn)})}
+document.getElementById("tabs").addEventListener("click",ev=>{const btn=ev.target.closest("[data-filter]");if(!btn)return;currentFilter=btn.dataset.filter;document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===btn));render()});
+document.getElementById("searchInput").addEventListener("input",ev=>{searchText=ev.target.value.trim();render()});
+render();
+})();
+</script>
+</body>
+</html>
