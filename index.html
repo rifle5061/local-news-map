@@ -310,7 +310,11 @@ body.normal-mode #scopeTopControls button{
   pointer-events:none;
 }
 @media(max-width:900px){
-  .region{max-width:none;width:100%}
+  .region{
+    max-width:none;
+    width:100%;
+    flex:0 0 auto;
+  }
 }
 
 .fixed-view-note{
@@ -511,7 +515,7 @@ body.normal-mode #scopeTopControls button{
   </section>
 
   <footer class="footer">
-    <div>最終更新：<span id="updatedAt">2026/06/09 19:00</span></div>
+    <div>最終更新：<span id="updatedAt">2026/06/09 19:30</span></div>
     <div>※このページは実データ反映テスト版です。事件・防犯は個人宅等を特定しないエリア表示にしています。交通情報は公式リンク確認を優先し、区間が明確なもののみ道路ライン表示する設計です。最新情報は必ず情報元・公式情報を確認してください。</div>
   </footer>
 
@@ -884,15 +888,22 @@ body.normal-mode #scopeTopControls button{
 
     if (state.scope === "neighbors") {
       const names = [pref, ...(prefInfo.neighbors || [])];
-      return names.map(name => prefectures[name]).filter(Boolean).map(p => [p.lat, p.lon]);
+      return names
+        .map(name => prefectures[name])
+        .filter(Boolean)
+        .map(p => [p.lat, p.lon]);
     }
 
     if (state.scope === "region") {
-      return Object.values(prefectures).filter(p => p.region === prefInfo.region).map(p => [p.lat, p.lon]);
+      return Object.values(prefectures)
+        .filter(p => p.region === prefInfo.region)
+        .map(p => [p.lat, p.lon]);
     }
 
     if (state.scope === "eastwest") {
-      return Object.values(prefectures).filter(p => p.eastwest === prefInfo.eastwest).map(p => [p.lat, p.lon]);
+      return Object.values(prefectures)
+        .filter(p => p.eastwest === prefInfo.eastwest)
+        .map(p => [p.lat, p.lon]);
     }
 
     return [[prefInfo.lat, prefInfo.lon]];
@@ -921,6 +932,7 @@ body.normal-mode #scopeTopControls button{
 
     if (!prefInfo) return;
 
+    // 市区町村・同県はニュース件数に関係なく選択都道府県の中心へ。
     if (state.scope === "city") {
       map.setView([prefInfo.lat, prefInfo.lon], 11);
       return;
@@ -931,6 +943,7 @@ body.normal-mode #scopeTopControls button{
       return;
     }
 
+    // 隣県・地方・東西は、対象都道府県の中心点全体が入るよう固定ズーム。
     const pts = fixedViewportPoints();
     if (pts && pts.length > 1) {
       map.fitBounds(L.latLngBounds(pts).pad(0.28));
@@ -961,6 +974,9 @@ body.normal-mode #scopeTopControls button{
   }
 
   function renderMap() {
+    if (map && map.invalidateSize) {
+      setTimeout(() => map.invalidateSize(), 0);
+    }
     layers.clearLayers();
     const items = mapItems();
     items.forEach(addMapItem);
@@ -1072,6 +1088,10 @@ body.normal-mode #scopeTopControls button{
     updateHeader();
     renderNewsLists();
     renderMap();
+    setTimeout(() => {
+      if (map && map.invalidateSize) map.invalidateSize();
+      if (state.mode === "fixed") setFixedViewport();
+    }, 120);
   }
 
   function setMode(mode) {
@@ -1135,7 +1155,10 @@ body.normal-mode #scopeTopControls button{
       setMode("fixed");
       // GPS地点にはピンだけを表示。
       // 固定モードの地図範囲は、GPS座標そのものではなく、取得した都道府県＋倍率で決める。
-      setFixedViewport();
+      setTimeout(() => {
+        if (map && map.invalidateSize) map.invalidateSize();
+        setFixedViewport();
+      }, 120);
     }, () => {
       alert("現在地を取得できませんでした。位置情報の許可を確認してください。");
     }, {
