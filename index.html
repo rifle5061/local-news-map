@@ -139,7 +139,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 
 <section class="card">
   <div class="map-head">
-    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。地図は自由に移動・ズームできます。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
+    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。地図は自由に移動・ズームできますが、日本周辺から大きく外へは移動しにくくしています。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
     <div class="checks">
       <label class="check"><input type="checkbox" id="showEvent" checked>イベント情報</label>
       <label class="check"><input type="checkbox" id="showCrime" checked>事件・防犯</label>
@@ -161,7 +161,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：2026/06/09 23:05<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：2026/06/09 23:20<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -175,7 +175,19 @@ const cat = {
   traffic:{list:"trafficList",count:"trafficCount",color:"#f97316",icon:"🚗",check:"showTraffic"}
 };
 const map = L.map("map",{zoomControl:true,minZoom:4,maxZoom:18}).setView([36.2,138.2],5);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
+
+// 日本周辺から大きく外へスクロールしないための表示制限。
+// 沖縄本島周辺は見られるが、海外側へ大きく移動しにくい範囲。
+const JAPAN_PAN_BOUNDS = L.latLngBounds([24.0,126.2],[46.5,146.8]);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  attribution:"&copy; OpenStreetMap contributors",
+  noWrap:true,
+  bounds:JAPAN_PAN_BOUNDS
+}).addTo(map);
+
+map.setMaxBounds(JAPAN_PAN_BOUNDS);
+map.options.maxBoundsViscosity = 1.0;
 const layers = L.layerGroup().addTo(map);
 
 function visibleCategory(c){ return document.getElementById(cat[c].check).checked; }
