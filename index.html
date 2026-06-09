@@ -312,6 +312,24 @@ body.normal-mode #scopeTopControls button{
 @media(max-width:900px){
   .region{max-width:none;width:100%}
 }
+
+.fixed-view-note{
+  position:absolute;
+  z-index:501;
+  right:14px;
+  top:14px;
+  background:rgba(23,32,51,.86);
+  color:#fff;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+@media(max-width:520px){
+  .fixed-view-note{left:10px;right:10px;top:10px;text-align:center;}
+}
 </style>
 </head>
 <body class="normal-mode">
@@ -340,13 +358,52 @@ body.normal-mode #scopeTopControls button{
             <span class="top-control-label">固定基準</span>
             <button class="geo-btn" id="useLocationBtn">📍 GPS現在地</button>
             <select class="pref-select" id="prefSelect">
-              <option value="秋田県">秋田県</option>
               <option value="北海道">北海道</option>
+              <option value="青森県">青森県</option>
+              <option value="岩手県">岩手県</option>
               <option value="宮城県">宮城県</option>
+              <option value="秋田県">秋田県</option>
+              <option value="山形県">山形県</option>
+              <option value="福島県">福島県</option>
+              <option value="茨城県">茨城県</option>
+              <option value="栃木県">栃木県</option>
+              <option value="群馬県">群馬県</option>
+              <option value="埼玉県">埼玉県</option>
+              <option value="千葉県">千葉県</option>
               <option value="東京都">東京都</option>
               <option value="神奈川県">神奈川県</option>
+              <option value="山梨県">山梨県</option>
+              <option value="新潟県">新潟県</option>
+              <option value="長野県">長野県</option>
+              <option value="静岡県">静岡県</option>
+              <option value="愛知県">愛知県</option>
+              <option value="岐阜県">岐阜県</option>
+              <option value="三重県">三重県</option>
+              <option value="富山県">富山県</option>
+              <option value="石川県">石川県</option>
+              <option value="福井県">福井県</option>
+              <option value="滋賀県">滋賀県</option>
+              <option value="京都府">京都府</option>
               <option value="大阪府">大阪府</option>
+              <option value="兵庫県">兵庫県</option>
+              <option value="奈良県">奈良県</option>
+              <option value="和歌山県">和歌山県</option>
+              <option value="鳥取県">鳥取県</option>
+              <option value="島根県">島根県</option>
+              <option value="岡山県">岡山県</option>
+              <option value="広島県">広島県</option>
+              <option value="山口県">山口県</option>
+              <option value="徳島県">徳島県</option>
+              <option value="香川県">香川県</option>
+              <option value="愛媛県">愛媛県</option>
+              <option value="高知県">高知県</option>
               <option value="福岡県">福岡県</option>
+              <option value="佐賀県">佐賀県</option>
+              <option value="長崎県">長崎県</option>
+              <option value="熊本県">熊本県</option>
+              <option value="大分県">大分県</option>
+              <option value="宮崎県">宮崎県</option>
+              <option value="鹿児島県">鹿児島県</option>
               <option value="沖縄県">沖縄県</option>
             </select>
           </div>
@@ -414,6 +471,7 @@ body.normal-mode #scopeTopControls button{
 
     <div class="map-wrap">
       <div id="map"></div>
+      <div class="fixed-view-note" id="fixedViewNote">通常モード：全国表示</div>
       <div class="legend">
         <div><span class="dot" style="background:#ef4444;opacity:.45;"></span>事件・防犯：エリア表示</div>
         <div><span class="dot" style="background:#22c55e;"></span>イベント：ピン表示</div>
@@ -453,7 +511,7 @@ body.normal-mode #scopeTopControls button{
   </section>
 
   <footer class="footer">
-    <div>最終更新：<span id="updatedAt">2026/06/09 18:30</span></div>
+    <div>最終更新：<span id="updatedAt">2026/06/09 19:00</span></div>
     <div>※このページは実データ反映テスト版です。事件・防犯は個人宅等を特定しないエリア表示にしています。交通情報は公式リンク確認を優先し、区間が明確なもののみ道路ライン表示する設計です。最新情報は必ず情報元・公式情報を確認してください。</div>
   </footer>
 
@@ -466,17 +524,52 @@ body.normal-mode #scopeTopControls button{
 
   const prefectures = {
     "北海道": { lat:43.0642, lon:141.3469, city:"札幌市", region:"北海道", eastwest:"east", neighbors:["青森県"] },
-    "青森県": { lat:40.8244, lon:140.7400, city:"青森市", region:"東北", eastwest:"east", neighbors:["北海道","岩手県","秋田県"] },
+    "青森県": { lat:40.8244, lon:140.74, city:"青森市", region:"東北", eastwest:"east", neighbors:["北海道","岩手県","秋田県"] },
     "岩手県": { lat:39.7036, lon:141.1527, city:"盛岡市", region:"東北", eastwest:"east", neighbors:["青森県","秋田県","宮城県"] },
     "宮城県": { lat:38.2688, lon:140.8721, city:"仙台市", region:"東北", eastwest:"east", neighbors:["岩手県","秋田県","山形県","福島県"] },
     "秋田県": { lat:39.7186, lon:140.1024, city:"秋田市", region:"東北", eastwest:"east", neighbors:["青森県","岩手県","宮城県","山形県"] },
     "山形県": { lat:38.2404, lon:140.3633, city:"山形市", region:"東北", eastwest:"east", neighbors:["秋田県","宮城県","福島県","新潟県"] },
-    "福島県": { lat:37.7503, lon:140.4676, city:"福島市", region:"東北", eastwest:"east", neighbors:["宮城県","山形県","新潟県","栃木県","茨城県"] },
+    "福島県": { lat:37.7503, lon:140.4676, city:"福島市", region:"東北", eastwest:"east", neighbors:["宮城県","山形県","新潟県","栃木県","茨城県","群馬県"] },
+    "茨城県": { lat:36.3418, lon:140.4468, city:"水戸市", region:"関東", eastwest:"east", neighbors:["福島県","栃木県","埼玉県","千葉県"] },
+    "栃木県": { lat:36.5658, lon:139.8836, city:"宇都宮市", region:"関東", eastwest:"east", neighbors:["福島県","群馬県","埼玉県","茨城県"] },
+    "群馬県": { lat:36.3907, lon:139.0604, city:"前橋市", region:"関東", eastwest:"east", neighbors:["新潟県","福島県","栃木県","埼玉県","長野県"] },
+    "埼玉県": { lat:35.8617, lon:139.6455, city:"さいたま市", region:"関東", eastwest:"east", neighbors:["東京都","千葉県","茨城県","栃木県","群馬県","長野県","山梨県"] },
+    "千葉県": { lat:35.6074, lon:140.1065, city:"千葉市", region:"関東", eastwest:"east", neighbors:["東京都","埼玉県","茨城県","神奈川県"] },
     "東京都": { lat:35.6812, lon:139.7671, city:"千代田区", region:"関東", eastwest:"east", neighbors:["神奈川県","埼玉県","千葉県","山梨県"] },
-    "神奈川県": { lat:35.4437, lon:139.6380, city:"横浜市", region:"関東", eastwest:"east", neighbors:["東京都","静岡県","山梨県"] },
+    "神奈川県": { lat:35.4437, lon:139.638, city:"横浜市", region:"関東", eastwest:"east", neighbors:["東京都","静岡県","山梨県","千葉県"] },
+    "山梨県": { lat:35.6639, lon:138.5683, city:"甲府市", region:"甲信越", eastwest:"east", neighbors:["東京都","神奈川県","埼玉県","長野県","静岡県"] },
+    "新潟県": { lat:37.9026, lon:139.0232, city:"新潟市", region:"甲信越", eastwest:"east", neighbors:["山形県","福島県","群馬県","長野県","富山県"] },
+    "長野県": { lat:36.6513, lon:138.181, city:"長野市", region:"甲信越", eastwest:"east", neighbors:["新潟県","群馬県","埼玉県","山梨県","静岡県","愛知県","岐阜県","富山県"] },
+    "静岡県": { lat:34.9756, lon:138.3828, city:"静岡市", region:"東海", eastwest:"east", neighbors:["神奈川県","山梨県","長野県","愛知県"] },
+    "愛知県": { lat:35.1802, lon:136.9066, city:"名古屋市", region:"東海", eastwest:"west", neighbors:["静岡県","長野県","岐阜県","三重県"] },
+    "岐阜県": { lat:35.3912, lon:136.7223, city:"岐阜市", region:"東海", eastwest:"west", neighbors:["富山県","石川県","福井県","滋賀県","三重県","愛知県","長野県"] },
+    "三重県": { lat:34.7303, lon:136.5086, city:"津市", region:"東海", eastwest:"west", neighbors:["愛知県","岐阜県","滋賀県","京都府","奈良県","和歌山県"] },
+    "富山県": { lat:36.6953, lon:137.2113, city:"富山市", region:"北陸", eastwest:"west", neighbors:["新潟県","長野県","岐阜県","石川県"] },
+    "石川県": { lat:36.5947, lon:136.6256, city:"金沢市", region:"北陸", eastwest:"west", neighbors:["富山県","岐阜県","福井県"] },
+    "福井県": { lat:36.0652, lon:136.2216, city:"福井市", region:"北陸", eastwest:"west", neighbors:["石川県","岐阜県","滋賀県","京都府"] },
+    "滋賀県": { lat:35.0045, lon:135.8686, city:"大津市", region:"関西", eastwest:"west", neighbors:["福井県","岐阜県","三重県","京都府"] },
+    "京都府": { lat:35.0116, lon:135.7681, city:"京都市", region:"関西", eastwest:"west", neighbors:["福井県","滋賀県","三重県","奈良県","大阪府","兵庫県"] },
     "大阪府": { lat:34.6937, lon:135.5023, city:"大阪市", region:"関西", eastwest:"west", neighbors:["京都府","兵庫県","奈良県","和歌山県"] },
+    "兵庫県": { lat:34.6901, lon:135.1955, city:"神戸市", region:"関西", eastwest:"west", neighbors:["京都府","大阪府","岡山県","鳥取県","徳島県"] },
+    "奈良県": { lat:34.6851, lon:135.8048, city:"奈良市", region:"関西", eastwest:"west", neighbors:["京都府","大阪府","和歌山県","三重県"] },
+    "和歌山県": { lat:34.226, lon:135.1675, city:"和歌山市", region:"関西", eastwest:"west", neighbors:["大阪府","奈良県","三重県","徳島県"] },
+    "鳥取県": { lat:35.5039, lon:134.2383, city:"鳥取市", region:"中国", eastwest:"west", neighbors:["兵庫県","岡山県","島根県","広島県"] },
+    "島根県": { lat:35.4723, lon:133.0505, city:"松江市", region:"中国", eastwest:"west", neighbors:["鳥取県","広島県","山口県"] },
+    "岡山県": { lat:34.6551, lon:133.9195, city:"岡山市", region:"中国", eastwest:"west", neighbors:["兵庫県","鳥取県","広島県","香川県"] },
+    "広島県": { lat:34.3853, lon:132.4553, city:"広島市", region:"中国", eastwest:"west", neighbors:["岡山県","鳥取県","島根県","山口県","愛媛県"] },
+    "山口県": { lat:34.1785, lon:131.4737, city:"山口市", region:"中国", eastwest:"west", neighbors:["島根県","広島県","福岡県"] },
+    "徳島県": { lat:34.0658, lon:134.5593, city:"徳島市", region:"四国", eastwest:"west", neighbors:["香川県","高知県","兵庫県","和歌山県"] },
+    "香川県": { lat:34.3401, lon:134.0434, city:"高松市", region:"四国", eastwest:"west", neighbors:["徳島県","愛媛県","岡山県"] },
+    "愛媛県": { lat:33.8416, lon:132.7661, city:"松山市", region:"四国", eastwest:"west", neighbors:["香川県","高知県","広島県","大分県"] },
+    "高知県": { lat:33.5597, lon:133.5311, city:"高知市", region:"四国", eastwest:"west", neighbors:["徳島県","愛媛県"] },
     "福岡県": { lat:33.5902, lon:130.4017, city:"福岡市", region:"九州", eastwest:"west", neighbors:["佐賀県","熊本県","大分県","山口県"] },
-    "沖縄県": { lat:26.2124, lon:127.6792, city:"那覇市", region:"沖縄", eastwest:"west", neighbors:[] }
+    "佐賀県": { lat:33.2494, lon:130.2988, city:"佐賀市", region:"九州", eastwest:"west", neighbors:["福岡県","長崎県"] },
+    "長崎県": { lat:32.7448, lon:129.8737, city:"長崎市", region:"九州", eastwest:"west", neighbors:["佐賀県"] },
+    "熊本県": { lat:32.7898, lon:130.7417, city:"熊本市", region:"九州", eastwest:"west", neighbors:["福岡県","大分県","宮崎県","鹿児島県"] },
+    "大分県": { lat:33.2382, lon:131.6126, city:"大分市", region:"九州", eastwest:"west", neighbors:["福岡県","熊本県","宮崎県","愛媛県"] },
+    "宮崎県": { lat:31.9111, lon:131.4239, city:"宮崎市", region:"九州", eastwest:"west", neighbors:["大分県","熊本県","鹿児島県"] },
+    "鹿児島県": { lat:31.5602, lon:130.5581, city:"鹿児島市", region:"九州", eastwest:"west", neighbors:["熊本県","宮崎県","沖縄県"] },
+    "沖縄県": { lat:26.2124, lon:127.6792, city:"那覇市", region:"沖縄", eastwest:"west", neighbors:["鹿児島県"] },
   };
 
   const newsData = [
@@ -778,25 +871,89 @@ body.normal-mode #scopeTopControls button{
     L.marker([item.lat, item.lon]).bindPopup(popupHtml(item)).addTo(layers);
   }
 
+  function fixedViewportPoints() {
+    if (state.mode !== "fixed") return null;
+
+    const pref = basePrefecture();
+    const prefInfo = prefectures[pref];
+    if (!prefInfo) return null;
+
+    if (state.scope === "city" || state.scope === "prefecture") {
+      return [[prefInfo.lat, prefInfo.lon]];
+    }
+
+    if (state.scope === "neighbors") {
+      const names = [pref, ...(prefInfo.neighbors || [])];
+      return names.map(name => prefectures[name]).filter(Boolean).map(p => [p.lat, p.lon]);
+    }
+
+    if (state.scope === "region") {
+      return Object.values(prefectures).filter(p => p.region === prefInfo.region).map(p => [p.lat, p.lon]);
+    }
+
+    if (state.scope === "eastwest") {
+      return Object.values(prefectures).filter(p => p.eastwest === prefInfo.eastwest).map(p => [p.lat, p.lon]);
+    }
+
+    return [[prefInfo.lat, prefInfo.lon]];
+  }
+
+  function setFixedViewport() {
+    const note = document.getElementById("fixedViewNote");
+
+    if (state.mode === "normal") {
+      if (note) note.textContent = "通常モード：全国表示";
+      map.setView([36.2, 138.2], 5);
+      return;
+    }
+
+    const pref = basePrefecture();
+    const prefInfo = prefectures[pref];
+    const scopeLabel = {
+      city: "同市区町村",
+      prefecture: "同県",
+      neighbors: "隣県まで",
+      region: "地方ブロック",
+      eastwest: "東日本 / 西日本"
+    }[state.scope] || "固定";
+
+    if (note) note.textContent = `固定：${pref} / ${scopeLabel}`;
+
+    if (!prefInfo) return;
+
+    if (state.scope === "city") {
+      map.setView([prefInfo.lat, prefInfo.lon], 11);
+      return;
+    }
+
+    if (state.scope === "prefecture") {
+      map.setView([prefInfo.lat, prefInfo.lon], 8);
+      return;
+    }
+
+    const pts = fixedViewportPoints();
+    if (pts && pts.length > 1) {
+      map.fitBounds(L.latLngBounds(pts).pad(0.28));
+      return;
+    }
+
+    map.setView([prefInfo.lat, prefInfo.lon], 8);
+  }
+
   function focusBounds(items) {
+    if (state.mode === "fixed") {
+      setFixedViewport();
+      return;
+    }
+
     const points = [];
     items.forEach(item => {
       if (item.points) item.points.forEach(p => points.push(p));
       else points.push([item.lat, item.lon]);
     });
 
-    if (state.currentLocation && state.mode === "fixed" && state.fixedBase === "current") {
-      points.push([state.currentLocation.lat, state.currentLocation.lon]);
-    }
-
     if (points.length) {
       map.fitBounds(L.latLngBounds(points).pad(0.18));
-      return;
-    }
-
-    if (state.mode === "fixed") {
-      const p = prefectures[basePrefecture()];
-      if (p) map.setView([p.lat, p.lon], state.scope === "city" ? 11 : 7);
       return;
     }
 
@@ -893,8 +1050,8 @@ body.normal-mode #scopeTopControls button{
     }[state.scope];
 
     regionName.textContent = `${pref} ${scopeLabel}`;
-    regionNote.textContent = state.fixedBase === "current" ? "現在地固定" : "都道府県固定";
-    modeNote.textContent = `固定モード：${state.fixedBase === "current" ? "現在地" : pref}を基準に「${scopeLabel}」のニュースを表示中。`;
+    regionNote.textContent = state.fixedBase === "current" ? "GPS都道府県固定" : "都道府県固定";
+    modeNote.textContent = `固定モード：${state.fixedBase === "current" ? "GPSで判定した" + pref : pref}を基準に「${scopeLabel}」のニュースを表示中。`;
 
     if (pref === "秋田県") {
       document.getElementById("weatherTitle").textContent = "おおむね曇り";
@@ -976,7 +1133,9 @@ body.normal-mode #scopeTopControls button{
       state.currentMarker = L.marker([lat, lon], { icon }).bindPopup("現在地").addTo(map);
 
       setMode("fixed");
-      map.setView([lat, lon], 12);
+      // GPS地点にはピンだけを表示。
+      // 固定モードの地図範囲は、GPS座標そのものではなく、取得した都道府県＋倍率で決める。
+      setFixedViewport();
     }, () => {
       alert("現在地を取得できませんでした。位置情報の許可を確認してください。");
     }, {
