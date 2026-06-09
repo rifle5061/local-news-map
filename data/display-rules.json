@@ -1,0 +1,19 @@
+{
+  "updated_at": "2026-06-09T22:14:53+09:00",
+  "rules": {
+    "event": {
+      "map_display": "開催期間中のみ。startDate/endDate を使用。確認リンクは alwaysShow/sourceLink で常時表示可。",
+      "list_display": "ニュース一覧には残す"
+    },
+    "crime": {
+      "map_display": "publishedAt から24時間以内のみ",
+      "list_display": "ニュース一覧には残す",
+      "privacy": "個人宅・詳細住所・個人名強調は避け、市区町村〜町名程度のエリア表示"
+    },
+    "traffic": {
+      "map_display": "publishedAt から6時間以内のみ。全国リンクは地図非表示。",
+      "list_display": "ニュース一覧には残す",
+      "note": "通行止めや解除まで続く規制は、将来 expiresAt 対応で延長可能"
+    }
+  }
+}
