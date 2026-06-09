@@ -441,7 +441,7 @@ body.normal-mode #scopeTopControls button{
     <div class="info-card">
       <h3>このサイトの目的</h3>
       <p>
-        地域ニュースマップは、イベント情報の共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。
+        地域ニュースマップは、イベント情報の共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。現在は秋田県周辺の実データ反映テスト版です。
       </p>
     </div>
     <div class="info-card">
@@ -453,8 +453,8 @@ body.normal-mode #scopeTopControls button{
   </section>
 
   <footer class="footer">
-    <div>最終更新：<span id="updatedAt">2026/06/09 18:00</span></div>
-    <div>※このページは仕様確認用の試作版です。表示されているニュース・天気はサンプルです。実運用時は公式情報・ニュース元を確認してください。</div>
+    <div>最終更新：<span id="updatedAt">2026/06/09 18:30</span></div>
+    <div>※このページは実データ反映テスト版です。事件・防犯は個人宅等を特定しないエリア表示にしています。交通情報は公式リンク確認を優先し、区間が明確なもののみ道路ライン表示する設計です。最新情報は必ず情報元・公式情報を確認してください。</div>
   </footer>
 
 </main>
@@ -481,94 +481,167 @@ body.normal-mode #scopeTopControls button{
 
   const newsData = [
     {
-      id: 1, category: "crime", title: "秋田市周辺で不審者情報",
-      summary: "児童への声かけ情報。周辺を通る際は注意してください。",
-      area: "秋田市周辺", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
-      time: "15:30", precision: "市区町村レベル", displayType: "area",
-      lat: 39.734, lon: 140.135, radius: 1800, url: "#", source:"防犯情報"
+        "id": 101,
+        "category": "crime",
+        "title": "潟上市で児童への無断撮影事案",
+        "summary": "秋田県警が公表している不審者情報。女子児童らが小学校の校地内で遊んでいたところ、周辺道路にいた見知らぬ男からスマートフォンを向けられる事案が発生。",
+        "area": "潟上市周辺",
+        "prefecture": "秋田県",
+        "city": "潟上市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/05/19 17:50ごろ",
+        "precision": "市区町村レベル",
+        "displayType": "area",
+        "lat": 39.883,
+        "lon": 139.988,
+        "radius": 2500,
+        "url": "https://www.police.pref.akita.lg.jp/kenkei/osirase/suspicious",
+        "source": "秋田県警察 不審者情報"
     },
     {
-      id: 2, category: "event", title: "秋田駅前で週末マルシェ",
-      summary: "地元店舗が出店する地域イベント。",
-      area: "秋田駅前広場", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
-      time: "11:00", precision: "会場レベル", displayType: "pin",
-      lat: 39.7169, lon: 140.1298, url: "#", source:"イベント情報"
+        "id": 102,
+        "category": "crime",
+        "title": "秋田県内の不審者情報",
+        "summary": "秋田県警は、子どもが対象となった声掛け・つきまとい等の事案について注意喚起を行っています。詳細は情報元を確認してください。",
+        "area": "秋田県内",
+        "prefecture": "秋田県",
+        "city": "秋田市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/06/03更新",
+        "precision": "県内情報",
+        "displayType": "area",
+        "lat": 39.7186,
+        "lon": 140.1024,
+        "radius": 5000,
+        "url": "https://www.police.pref.akita.lg.jp/kenkei/osirase/suspicious",
+        "source": "秋田県警察 不審者情報"
     },
     {
-      id: 3, category: "traffic", title: "秋田市 国道13号で事故渋滞",
-      summary: "車両事故により周辺で渋滞が発生しています。",
-      area: "国道13号 大住入口付近", prefecture:"秋田県", city:"秋田市", region:"東北", eastwest:"east",
-      time: "12:45", precision: "道路区間", displayType: "line",
-      points: [[39.6750,140.1115],[39.6790,140.1160],[39.6830,140.1210]],
-      lat:39.6790, lon:140.1160, url:"#", source:"交通情報"
+        "id": 201,
+        "category": "event",
+        "title": "青空フリーマーケット",
+        "summary": "秋田拠点センターアルヴェで開催されるフリーマーケット情報。",
+        "area": "秋田拠点センターアルヴェ",
+        "prefecture": "秋田県",
+        "city": "秋田市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/06/09",
+        "precision": "会場レベル",
+        "displayType": "pin",
+        "lat": 39.7169,
+        "lon": 140.1298,
+        "url": "https://akitanote.jp/event/6.html",
+        "source": "秋田県イベント情報"
     },
     {
-      id: 4, category: "event", title: "仙台市中心部で音楽イベント",
-      summary: "屋外ステージで地域音楽イベントを開催。",
-      area: "仙台市中心部", prefecture:"宮城県", city:"仙台市", region:"東北", eastwest:"east",
-      time:"13:00", precision:"会場レベル", displayType:"pin",
-      lat:38.2600, lon:140.8800, url:"#", source:"イベント情報"
+        "id": 202,
+        "category": "event",
+        "title": "東京カレーカルチャー in 秋田",
+        "summary": "西武秋田店で開催されるグルメ系イベント。2026/06/09〜2026/06/21開催。",
+        "area": "西武秋田店",
+        "prefecture": "秋田県",
+        "city": "秋田市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/06/09〜2026/06/21",
+        "precision": "会場レベル",
+        "displayType": "pin",
+        "lat": 39.7186,
+        "lon": 140.1265,
+        "url": "https://akitanote.jp/event/6.html",
+        "source": "秋田県イベント情報"
     },
     {
-      id: 5, category: "traffic", title: "東北道 仙台宮城IC付近で渋滞",
-      summary: "事故の影響で上り線に渋滞。",
-      area:"東北道 仙台宮城IC付近", prefecture:"宮城県", city:"仙台市", region:"東北", eastwest:"east",
-      time:"12:20", precision:"道路区間", displayType:"line",
-      points:[[38.287,140.804],[38.275,140.820],[38.265,140.835]],
-      lat:38.275, lon:140.820, url:"#", source:"交通情報"
+        "id": 203,
+        "category": "event",
+        "title": "春のバラ観賞会",
+        "summary": "遊学舎で開催される季節イベント。",
+        "area": "遊学舎",
+        "prefecture": "秋田県",
+        "city": "秋田市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/06/10",
+        "precision": "会場レベル",
+        "displayType": "pin",
+        "lat": 39.67,
+        "lon": 140.1468,
+        "url": "https://akitanote.jp/event/6.html",
+        "source": "秋田県イベント情報"
     },
     {
-      id: 6, category: "crime", title: "東京都内で強盗事件",
-      summary: "店舗を対象とした強盗事件。警察が捜査中です。",
-      area:"東京都内周辺", prefecture:"東京都", city:"千代田区", region:"関東", eastwest:"east",
-      time:"18:10", precision:"市区町村レベル", displayType:"area",
-      lat:35.6812, lon:139.7671, radius:1800, url:"#", source:"ニュース"
+        "id": 204,
+        "category": "event",
+        "title": "バラフェスタ2026",
+        "summary": "秋田県立農業科学館で開催。約200品種300株の初夏のバラを楽しめるイベント。",
+        "area": "秋田県立農業科学館",
+        "prefecture": "秋田県",
+        "city": "大仙市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "2026/06/06〜2026/06/28",
+        "precision": "会場レベル",
+        "displayType": "pin",
+        "lat": 39.453,
+        "lon": 140.493,
+        "url": "https://www.walkerplus.com/event_list/0620/ar0205/",
+        "source": "ウォーカープラス"
     },
     {
-      id: 7, category: "event", title: "横浜で週末フェス開催",
-      summary: "港周辺で開催される大型イベント。",
-      area:"横浜市中心部", prefecture:"神奈川県", city:"横浜市", region:"関東", eastwest:"east",
-      time:"10:00", precision:"会場レベル", displayType:"pin",
-      lat:35.4437, lon:139.6380, url:"#", source:"イベント情報"
+        "id": 301,
+        "category": "traffic",
+        "title": "秋田県の道路交通情報",
+        "summary": "渋滞・事故・規制などの最新状況はJARTIC等の公式交通情報で確認できます。地図表示は秋田市周辺の確認用エリアです。",
+        "area": "秋田市周辺",
+        "prefecture": "秋田県",
+        "city": "秋田市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "リアルタイム確認",
+        "precision": "公式リンク確認",
+        "displayType": "area",
+        "lat": 39.7186,
+        "lon": 140.1024,
+        "radius": 1500,
+        "url": "https://www.jartic.or.jp/",
+        "source": "JARTIC 日本道路交通情報センター"
     },
     {
-      id: 8, category: "traffic", title: "首都高速で渋滞",
-      summary: "事故の影響で一部区間が渋滞しています。",
-      area:"首都高速 都心環状線", prefecture:"東京都", city:"千代田区", region:"関東", eastwest:"east",
-      time:"17:30", precision:"道路区間", displayType:"line",
-      points:[[35.676,139.748],[35.681,139.758],[35.685,139.770]],
-      lat:35.681, lon:139.758, url:"#", source:"交通情報"
-    },
-    {
-      id: 9, category: "event", title: "大阪市でグルメイベント",
-      summary: "商業施設で期間限定イベントを開催。",
-      area:"大阪市中心部", prefecture:"大阪府", city:"大阪市", region:"関西", eastwest:"west",
-      time:"11:00", precision:"会場レベル", displayType:"pin",
-      lat:34.6937, lon:135.5023, url:"#", source:"イベント情報"
-    },
-    {
-      id:10, category:"traffic", title:"阪神高速で渋滞",
-      summary:"交通集中により一部区間で渋滞。",
-      area:"阪神高速 大阪市内", prefecture:"大阪府", city:"大阪市", region:"関西", eastwest:"west",
-      time:"16:00", precision:"道路区間", displayType:"line",
-      points:[[34.690,135.490],[34.694,135.502],[34.700,135.514]],
-      lat:34.694, lon:135.502, url:"#", source:"交通情報"
-    },
-    {
-      id:11, category:"crime", title:"福岡市周辺で防犯情報",
-      summary:"帰宅時間帯の声かけ事案。周辺の安全確認にご注意ください。",
-      area:"福岡市周辺", prefecture:"福岡県", city:"福岡市", region:"九州", eastwest:"west",
-      time:"19:10", precision:"市区町村レベル", displayType:"area",
-      lat:33.5902, lon:130.4017, radius:1800, url:"#", source:"防犯情報"
-    },
-    {
-      id:12, category:"event", title:"那覇市で地域イベント",
-      summary:"市内会場で地域交流イベントを開催。",
-      area:"那覇市中心部", prefecture:"沖縄県", city:"那覇市", region:"沖縄", eastwest:"west",
-      time:"14:00", precision:"会場レベル", displayType:"pin",
-      lat:26.2124, lon:127.6792, url:"#", source:"イベント情報"
+        "id": 302,
+        "category": "traffic",
+        "title": "高速道路のリアルタイム交通情報",
+        "summary": "高速道路の通行止め・渋滞などを確認できる交通情報リンク。実際の区間表示は、IC〜ICなど区間が取得できる場合に反映予定です。",
+        "area": "東北地方周辺",
+        "prefecture": "宮城県",
+        "city": "仙台市",
+        "region": "東北",
+        "eastwest": "east",
+        "time": "リアルタイム確認",
+        "precision": "公式リンク確認",
+        "displayType": "line",
+        "points": [
+            [
+                38.287,
+                140.804
+            ],
+            [
+                38.275,
+                140.82
+            ],
+            [
+                38.265,
+                140.835
+            ]
+        ],
+        "lat": 38.275,
+        "lon": 140.82,
+        "url": "https://www.drivetraffic.jp/map.html?area=02&lv=6&t=r",
+        "source": "ドラぷら リアルタイム交通情報"
     }
-  ];
+];
 
   const categoryInfo = {
     crime: { label: "事件・防犯", icon: "🛡", color: "#ef4444", listId: "crimeList", countId: "crimeCount", checkboxId: "showCrime" },
