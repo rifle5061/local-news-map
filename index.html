@@ -21,6 +21,8 @@ h1{margin:0;font-size:28px;line-height:1.15;font-weight:900}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
 .label{font-size:13px;color:#607089;font-weight:900;min-width:92px}
 select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:999px;padding:10px 14px;font-weight:900;max-width:240px}
+.mini-check{display:inline-flex;align-items:center;gap:6px;background:#f3f7fc;border:1px solid #dce7f3;border-radius:999px;padding:8px 11px;font-size:13px;font-weight:900;white-space:nowrap}
+.mini-check input{transform:scale(1.12);accent-color:#1f7cff}
 .status{margin-top:8px;font-size:20px;font-weight:900}
 .status-note{font-size:12px;color:#607089}
 .weather{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px;margin-top:12px}
@@ -35,7 +37,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #eef2f7}
 .map-head h2{margin:0;font-size:21px}
 .map-head p{margin:4px 0 0;color:#607089;font-size:13px}
-.checks{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.checks{display:none;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 .check{display:inline-flex;align-items:center;gap:6px;background:#f3f7fc;border:1px solid #dce7f3;border-radius:999px;padding:8px 11px;font-weight:900;font-size:13px;white-space:nowrap}
 .check input{transform:scale(1.12);accent-color:#1f7cff}
 .map-wrap{position:relative}
@@ -125,8 +127,14 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 <option value="宮崎県">宮崎県</option>
 <option value="鹿児島県">鹿児島県</option>
 <option value="沖縄県">沖縄県</option></select></div>
+
+      <div class="row category-row"><span class="label">表示カテゴリ</span>
+        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="event" checked>イベント</label>
+        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="traffic" checked>渋滞</label>
+        <label class="mini-check"><input type="checkbox" class="category-filter" data-category="crime" checked>事件</label>
+      </div>
       <div class="status" id="status">全国ニュース</div>
-      <div class="status-note" id="statusNote">都道府県を選択すると、その地域のニュースを表示します。</div>
+      <div class="status-note" id="statusNote">都道府県を選択すると地図と天気だけ切り替わります。ニュース一覧は全国のままです。</div>
     </div>
   </div>
   <div class="weather">
@@ -139,7 +147,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 
 <section class="card">
   <div class="map-head">
-    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。地図は自由に移動・ズームできますが、日本周辺から大きく外へは移動しにくくしています。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
+    <div><h2>ニュース地図</h2><p>表示カテゴリは上段のチェックで切り替えできます。地図は自由に移動・ズームできますが、日本周辺から大きく外へは移動しにくくしています。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
     <div class="checks">
       <label class="check"><input type="checkbox" id="showEvent" checked>イベント情報</label>
       <label class="check"><input type="checkbox" id="showCrime" checked>事件・防犯</label>
@@ -161,7 +169,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。全国版の実データ反映テストとして、ニュースリンクと天気APIを接続しています。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 00:10</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 00:40</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -206,8 +214,12 @@ map.setMaxBounds(JAPAN_PAN_BOUNDS);
 map.options.maxBoundsViscosity = 1.0;
 const layers = L.layerGroup().addTo(map);
 
-function visibleCategory(c){ return document.getElementById(cat[c].check).checked; }
-function filteredNews(){ return (!state.pref || state.pref==="全国") ? NEWS : NEWS.filter(n=>n.prefecture===state.pref); }
+function categoryEnabled(c){
+ const box = document.querySelector(`.category-filter[data-category="${c}"]`);
+ return box ? box.checked : true;
+}
+function visibleCategory(c){ return categoryEnabled(c); }
+function filteredNews(){ return NEWS; }
 
 function popup(item){
  const c=cat[item.category];
@@ -263,9 +275,9 @@ function renderLists(){
  Object.keys(cat).forEach(k=>{
   const box=document.getElementById(cat[k].list), count=document.getElementById(cat[k].count);
   box.innerHTML="";
-  const arr=items.filter(n=>n.category===k);
+  const arr=categoryEnabled(k) ? items.filter(n=>n.category===k) : [];
   count.textContent=`${arr.length}件`;
-  if(!arr.length){ box.innerHTML='<div class="empty">この都道府県のニュースはありません。</div>'; return; }
+  if(!arr.length){ box.innerHTML='<div class="empty">ニュースはありません。</div>'; return; }
   arr.forEach(item=>{
    const b=document.createElement("button");
    b.className="item";
@@ -292,7 +304,7 @@ function renderLists(){
 function updateHeader(){
  const p=PREFS[state.pref]||PREFS["全国"];
  document.getElementById("status").textContent = (!state.pref || state.pref==="全国") ? "全国ニュース" : `${state.pref}のニュース`;
- document.getElementById("statusNote").textContent = (!state.pref) ? "全国または都道府県を選択できます" : (state.pref==="全国" ? "全国の登録ニュースを表示中" : `${state.pref}に登録されたニュースを表示中`);
+ document.getElementById("statusNote").textContent = (!state.pref || state.pref==="全国") ? "全国ニュースを表示中" : `${state.pref}表示中 / ニュース一覧は全国のまま`;
  document.getElementById("lockNote").textContent = (!state.pref || state.pref==="全国") ? "日本地図" : `${state.pref}全体を表示`;
  document.getElementById("weatherTitle").textContent = (!state.pref || state.pref==="全国") ? "地域天気" : `${state.pref}の天気`;
  document.getElementById("temp").textContent = "--℃";
@@ -352,6 +364,9 @@ function rerender(){ updateHeader(); renderLists(); renderMap(); fetchWeather();
 
 document.getElementById("prefSelect").onchange=e=>{ state.pref=e.target.value; rerender(); };
 ["showEvent","showCrime","showTraffic"].forEach(id=>document.getElementById(id).onchange=renderMap);
+document.querySelectorAll(".category-filter").forEach(box=>{
+ box.onchange=()=>{ renderLists(); renderMap(); };
+});
 loadNewsData().then(()=>rerender());
 </script>
 </body>
