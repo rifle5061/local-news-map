@@ -139,14 +139,14 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 
 <section class="card">
   <div class="map-head">
-    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。地図は自由に移動・ズームできます。全国表示では日本地図の最大引きを固定し、都道府県選択時はその都道府県全体が入る位置へ移動します。</p></div>
+    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。地図は自由に移動・ズームできます。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
     <div class="checks">
       <label class="check"><input type="checkbox" id="showEvent" checked>イベント情報</label>
       <label class="check"><input type="checkbox" id="showCrime" checked>事件・防犯</label>
       <label class="check"><input type="checkbox" id="showTraffic" checked>渋滞・交通事故</label>
     </div>
   </div>
-  <div class="map-wrap"><div id="map"></div><div class="lock" id="lockNote">日本地図（拡大表示）</div>
+  <div class="map-wrap"><div id="map"></div><div class="lock" id="lockNote">日本地図</div>
   <div class="legend">
     <div><span class="dot" style="background:#ef4444;opacity:.45"></span>事件・防犯：エリア表示</div>
     <div><span class="dot" style="background:#22c55e"></span>イベント：ピン表示</div>
@@ -161,7 +161,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：2026/06/09 22:50<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：2026/06/09 23:05<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -174,13 +174,7 @@ const cat = {
   event:{list:"eventList",count:"eventCount",color:"#22c55e",icon:"📅",check:"showEvent"},
   traffic:{list:"trafficList",count:"trafficCount",color:"#f97316",icon:"🚗",check:"showTraffic"}
 };
-const map = L.map("map",{
-  zoomControl:true,
-  minZoom:4,
-  maxZoom:18,
-  maxBounds:JAPAN_PAN_BOUNDS,
-  maxBoundsViscosity:0.85
-}).setView([36.2,138.2],5);
+const map = L.map("map",{zoomControl:true,minZoom:4,maxZoom:18}).setView([36.2,138.2],5);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
 const layers = L.layerGroup().addTo(map);
 
@@ -207,12 +201,6 @@ function drawItem(item){
 }
 
 const PREF_BOUNDS = {"全国": [[31.0, 130.15], [45.8, 145.95]], "北海道": [[41.2, 139.2], [45.7, 146.2]], "青森県": [[40.15, 139.45], [41.65, 141.7]], "岩手県": [[38.7, 140.65], [40.45, 142.1]], "宮城県": [[37.75, 140.2], [38.95, 141.7]], "秋田県": [[38.85, 139.65], [40.55, 140.95]], "山形県": [[37.7, 139.5], [39.25, 140.7]], "福島県": [[36.75, 139.15], [37.98, 141.1]], "茨城県": [[35.7, 139.65], [36.95, 140.85]], "栃木県": [[36.15, 139.35], [37.2, 140.3]], "群馬県": [[35.95, 138.4], [36.95, 139.7]], "埼玉県": [[35.7, 138.7], [36.3, 139.95]], "千葉県": [[34.85, 139.7], [36.15, 140.9]], "東京都": [[35.45, 139.45], [35.9, 140.05]], "神奈川県": [[35.1, 139.0], [35.7, 139.85]], "山梨県": [[35.15, 138.2], [35.95, 139.15]], "新潟県": [[36.7, 137.55], [38.55, 139.95]], "長野県": [[35.15, 137.3], [37.05, 138.85]], "静岡県": [[34.55, 137.45], [35.65, 139.2]], "愛知県": [[34.55, 136.65], [35.45, 137.85]], "岐阜県": [[35.15, 136.25], [36.5, 137.65]], "三重県": [[33.7, 135.85], [35.3, 136.95]], "富山県": [[36.25, 136.75], [36.98, 137.8]], "石川県": [[36.0, 136.05], [37.55, 137.35]], "福井県": [[35.3, 135.4], [36.35, 136.85]], "滋賀県": [[34.75, 135.7], [35.75, 136.45]], "京都府": [[34.7, 134.85], [35.85, 136.1]], "大阪府": [[34.25, 135.05], [35.0, 135.75]], "兵庫県": [[34.1, 134.25], [35.7, 135.55]], "奈良県": [[33.85, 135.45], [34.85, 136.25]], "和歌山県": [[33.4, 134.95], [34.45, 136.05]], "鳥取県": [[35.0, 133.05], [35.65, 134.6]], "島根県": [[34.25, 131.65], [35.7, 133.5]], "岡山県": [[34.25, 133.25], [35.35, 134.4]], "広島県": [[34.0, 132.0], [35.15, 133.5]], "山口県": [[33.7, 130.75], [34.8, 132.55]], "徳島県": [[33.5, 133.55], [34.35, 134.85]], "香川県": [[34.0, 133.45], [34.65, 134.45]], "愛媛県": [[32.85, 132.0], [34.3, 133.7]], "高知県": [[32.7, 132.5], [33.95, 134.35]], "福岡県": [[33.0, 130.0], [34.0, 131.3]], "佐賀県": [[32.9, 129.7], [33.65, 130.55]], "長崎県": [[32.35, 128.55], [34.0, 130.4]], "熊本県": [[32.0, 130.1], [33.3, 131.35]], "大分県": [[32.65, 130.8], [33.75, 132.05]], "宮崎県": [[31.35, 130.7], [32.9, 131.9]], "鹿児島県": [[30.95, 129.4], [32.35, 131.25]], "沖縄県": [[26.0, 127.45], [26.85, 128.35]]};
-// 全国表示の最大引き。これ以上は世界地図側へ引かせない。
-const JAPAN_VIEW_BOUNDS = L.latLngBounds([31.0, 130.15], [45.8, 145.95]);
-
-// 移動できる最大範囲。沖縄方面は自分で移動して見られるが、世界中へは行けないようにする。
-const JAPAN_PAN_BOUNDS = L.latLngBounds([24.0, 122.5], [46.3, 146.6]);
-
 
 function prefBounds(pref){
  const b = PREF_BOUNDS[pref] || PREF_BOUNDS["全国"];
@@ -227,31 +215,11 @@ function renderMap(){
  setTimeout(()=>{
   map.invalidateSize();
 
-  if((!state.pref || state.pref === "全国")){
-    // 全国選択時は、これ以上引けない日本地図表示にする。
-    map.fitBounds(JAPAN_VIEW_BOUNDS, {padding:[2,2], animate:false});
-    setTimeout(()=>{
-      map.invalidateSize();
-      map.fitBounds(JAPAN_VIEW_BOUNDS, {padding:[2,2], animate:false});
-      map.setMinZoom(map.getZoom());
-      map.setMaxBounds(JAPAN_PAN_BOUNDS);
-      map.options.maxBoundsViscosity = 0.85;
-    },80);
-    document.getElementById("lockNote").textContent = "日本地図（最大引き）";
-    return;
-  }
-
-  // 都道府県選択時は、ニュース位置ではなく都道府県全体が入る表示にする。
-  // ただし、最大ズームアウトは全国の日本地図表示まで。
-  const b = prefBounds(state.pref);
+  const b = prefBounds(state.pref || "全国");
   if(b && b.isValid()){
+    // 全国/都道府県選択時は、その範囲へ移動。
+    // 地図操作は自由に残す。制御は入れすぎない。
     map.fitBounds(b, {padding:[2,2], animate:false});
-    setTimeout(()=>{
-      map.invalidateSize();
-      map.setMinZoom(map.getBoundsZoom(JAPAN_VIEW_BOUNDS, true));
-      map.setMaxBounds(JAPAN_PAN_BOUNDS);
-      map.options.maxBoundsViscosity = 0.85;
-    },80);
     return;
   }
 
@@ -291,7 +259,7 @@ function updateHeader(){
  const p=PREFS[state.pref]||PREFS["全国"];
  document.getElementById("status").textContent = (!state.pref || state.pref==="全国") ? "全国ニュース" : `${state.pref}のニュース`;
  document.getElementById("statusNote").textContent = (!state.pref) ? "全国または都道府県を選択できます" : (state.pref==="全国" ? "全国の登録ニュースを表示中" : `${state.pref}に登録されたニュースを表示中`);
- document.getElementById("lockNote").textContent = (!state.pref || state.pref==="全国") ? "日本地図（最大引き）" : `${state.pref}全体を表示`;
+ document.getElementById("lockNote").textContent = (!state.pref || state.pref==="全国") ? "日本地図" : `${state.pref}全体を表示`;
  document.getElementById("weatherTitle").textContent = (!state.pref || state.pref==="全国") ? "地域天気" : `${state.pref}の天気`;
  document.getElementById("temp").textContent = state.pref==="秋田県" ? "16℃" : "--℃";
  document.getElementById("rain").textContent = "--%";
