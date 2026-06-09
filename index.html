@@ -171,7 +171,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 
 <section class="card">
   <div class="map-head">
-    <div><h2>ニュース地図</h2><p>表示カテゴリは上段のチェックで切り替えできます。地図は自由に移動・ズームできますが、日本周辺から大きく外へは移動しにくくしています。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
+    <div><h2>ニュース地図</h2><p>表示カテゴリは上段のチェックで切り替えできます。期間イベントは開催期間中だけ地図に表示します。地図は自由に移動・ズームできますが、日本周辺から大きく外へは移動しにくくしています。都道府県選択時は、その都道府県全体が入る位置へ移動します。</p></div>
     <div class="checks">
       <label class="check"><input type="checkbox" id="showEvent" checked>イベント情報</label>
       <label class="check"><input type="checkbox" id="showCrime" checked>事件・防犯</label>
@@ -193,7 +193,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。全国版の実データ反映テストとして、ニュースリンクと天気APIを接続しています。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 01:00</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：<span id="updatedAt">2026/06/10 01:35</span><br>※全国ニュース・天気の実データ反映テスト版です。全国向けニュースは地図に表示せず、ニュース一覧のみ表示します。情報量補強のため公式・ポータル確認リンクも掲載しています。期間イベントはstartDate/endDateで開催期間中のみ地図表示します。天気はOpen-Meteo APIを利用しています。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -243,12 +243,50 @@ function categoryEnabled(c){
  return box ? box.checked : true;
 }
 function visibleCategory(c){ return categoryEnabled(c); }
+
+function todayJst(){
+ const now = new Date();
+ const jst = new Date(now.toLocaleString("en-US", {timeZone:"Asia/Tokyo"}));
+ const y = jst.getFullYear();
+ const m = String(jst.getMonth()+1).padStart(2,"0");
+ const d = String(jst.getDate()).padStart(2,"0");
+ return `${y}-${m}-${d}`;
+}
+
+function eventStatus(item){
+ if(item.category !== "event") return "";
+ if(item.alwaysShow) return "常時確認リンク";
+ if(!item.startDate && !item.endDate) return "";
+ const today = todayJst();
+ const start = item.startDate || item.endDate;
+ const end = item.endDate || item.startDate;
+ if(today < start) return "開催前";
+ if(today > end) return "終了";
+ if(start === end) return "本日開催";
+ return "開催中";
+}
+
+function shouldShowOnMap(item){
+ if(item.map === false || item.displayType === "none") return false;
+ if(item.category !== "event") return true;
+ if(item.alwaysShow) return true;
+ if(!item.startDate && !item.endDate) return true;
+ const status = eventStatus(item);
+ return status === "開催中" || status === "本日開催";
+}
+
+function dateBadge(item){
+ const s = eventStatus(item);
+ if(!s) return "";
+ return ` / ${s}`;
+}
+
 function filteredNews(){ return NEWS; }
 
 function popup(item){
  const c=cat[item.category];
  return `<div class="popup-title">${c.icon} ${item.title}</div>
- <div class="popup-meta">${item.area} / ${item.time} / ${item.precision}<br>情報元：${item.source||"ニュース"}</div>
+ <div class="popup-meta">${item.area} / ${item.time}${dateBadge(item)} / ${item.precision}<br>情報元：${item.source||"ニュース"}</div>
  <div style="margin-bottom:8px">${item.summary}</div>
  <a class="popup-link" href="${item.url}" target="_blank" rel="noopener">情報元を見る</a>`;
 }
@@ -275,7 +313,7 @@ function prefBounds(pref){
 function renderMap(){
  layers.clearLayers();
  const items = filteredNews().filter(n=>visibleCategory(n.category));
- const mapItems = items.filter(n=>n.map !== false && n.displayType !== "none");
+ const mapItems = items.filter(n=>shouldShowOnMap(n));
  mapItems.forEach(drawItem);
 
  setTimeout(()=>{
@@ -305,9 +343,9 @@ function renderLists(){
   arr.forEach(item=>{
    const b=document.createElement("button");
    b.className="item";
-   b.innerHTML=`<h3>${item.title}</h3><p>${item.summary}</p><div class="meta">${item.area} / ${item.time} / ${item.precision}<br>情報元：${item.source}</div><span class="action">${(item.map === false || item.displayType === "none") ? "情報元を見る" : "地図で見る"}</span>`;
+   b.innerHTML=`<h3>${item.title}</h3><p>${item.summary}</p><div class="meta">${item.area} / ${item.time}${dateBadge(item)} / ${item.precision}<br>情報元：${item.source}</div><span class="action">${(!shouldShowOnMap(item)) ? "情報元を見る" : "地図で見る"}</span>`;
    b.onclick=()=>{
-    if(item.map === false || item.displayType === "none"){
+    if(!shouldShowOnMap(item)){
       if(item.url && item.url !== "#") window.open(item.url, "_blank", "noopener");
       return;
     }
