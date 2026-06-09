@@ -39,10 +39,10 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 .check{display:inline-flex;align-items:center;gap:6px;background:#f3f7fc;border:1px solid #dce7f3;border-radius:999px;padding:8px 11px;font-weight:900;font-size:13px;white-space:nowrap}
 .check input{transform:scale(1.12);accent-color:#1f7cff}
 .map-wrap{position:relative}
-#map{width:100%;height:560px;background:#e9eef5}
+#map{width:100%;height:660px;background:#e9eef5}
 .lock{position:absolute;z-index:501;right:14px;top:14px;background:rgba(23,32,51,.88);color:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;pointer-events:none}
-.legend{position:absolute;z-index:500;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:14px;padding:11px;font-size:12px;color:#344056;box-shadow:0 8px 24px rgba(20,45,90,.12)}
-.legend div{display:flex;gap:7px;align-items:center;margin:4px 0}
+.legend{position:absolute;z-index:500;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:14px;padding:9px;font-size:11px;color:#344056;box-shadow:0 8px 24px rgba(20,45,90,.12)}
+.legend div{display:flex;gap:6px;align-items:center;margin:3px 0}
 .dot{width:13px;height:13px;border-radius:999px;display:inline-block}
 .line{width:22px;height:5px;border-radius:999px;display:inline-block}
 .news{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
@@ -64,8 +64,8 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 .popup-title{font-weight:900;font-size:15px;margin-bottom:4px}
 .popup-meta{color:#66758a;font-size:12px;margin-bottom:8px}
 .popup-link{display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px}
-@media(max-width:900px){.header{grid-template-columns:1fr}.weather{grid-template-columns:1fr 1fr}.weather-main{grid-column:1/-1}#map{height:500px}.news{grid-template-columns:1fr}.info{grid-template-columns:1fr}}
-@media(max-width:520px){.page{padding:10px 8px 28px}.hero{border-radius:22px;padding:14px 12px}h1{font-size:25px}#map{height:430px}.lock{left:10px;right:10px;text-align:center}.legend{left:10px;right:10px;bottom:10px}}
+@media(max-width:900px){.header{grid-template-columns:1fr}.weather{grid-template-columns:1fr 1fr}.weather-main{grid-column:1/-1}#map{height:620px}.news{grid-template-columns:1fr}.info{grid-template-columns:1fr}}
+@media(max-width:520px){.page{padding:10px 8px 28px}.hero{border-radius:22px;padding:14px 12px}h1{font-size:25px}#map{height:560px}.lock{left:10px;right:10px;text-align:center}.legend{left:10px;right:10px;bottom:10px}}
 </style>
 </head>
 <body>
@@ -161,7 +161,7 @@ select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:9
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：2026/06/09 22:20<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：2026/06/09 22:35<br>※都道府県別表示のシンプル版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
