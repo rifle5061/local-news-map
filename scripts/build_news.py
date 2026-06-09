@@ -115,6 +115,22 @@ def apply_display_rules(item: dict[str, Any]) -> dict[str, Any]:
     return item
 
 
+def is_fake_event_link(item: dict[str, Any]) -> bool:
+    """イベント確認リンクの水増しデータはイベントとして扱わない。"""
+    if item.get("category") != "event":
+        return False
+    title = str(item.get("title", ""))
+    source = str(item.get("source", ""))
+    precision = str(item.get("precision", ""))
+    return (
+        item.get("sourceLink") is True
+        or "イベント情報確認リンク" in title
+        or "イベント確認リンク" in title
+        or source == "イベント情報リンク"
+        or (precision == "確認リンク" and "イベント" in title)
+    )
+
+
 def normalize_item(item: dict[str, Any]) -> dict[str, Any]:
     item = dict(item)
     item = apply_display_rules(item)
@@ -319,7 +335,7 @@ def main() -> None:
     manual = load_manual_items()
     rss = load_rss_items()
 
-    normalized = [normalize_item(item) for item in [*manual, *rss]]
+    normalized = [normalize_item(item) for item in [*manual, *rss] if not is_fake_event_link(item)]
 
     seen = set()
     unique: list[dict[str, Any]] = []
