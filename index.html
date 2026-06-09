@@ -165,7 +165,7 @@ body.fixed .leaflet-control-zoom{display:block}
 </section>
 
 <section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
-<footer class="footer">最終更新：2026/06/09 20:20<br>※実データ反映テスト版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
+<footer class="footer">最終更新：2026/06/09 20:35<br>※実データ反映テスト版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -227,107 +227,40 @@ function drawItem(item){
  }
 }
 
-function getScopePrefNames(){
- const p = basePref();
- const info = PREFS[p];
- if(!info) return [];
- if(state.scope==="city" || state.scope==="prefecture") return [p];
- if(state.scope==="neighbors") return [p,...info.neighbors];
- if(state.scope==="region") return Object.keys(PREFS).filter(k=>PREFS[k].region===info.region);
- if(state.scope==="side") return Object.keys(PREFS).filter(k=>PREFS[k].side===info.side);
- return [p];
-}
-
-function roughPrefBounds(prefName){
- const p = PREFS[prefName];
- if(!p) return null;
-
- // 県境データなしの簡易版。まずは「選択県全域の目安」を最小表示にする。
- const custom = {
-   "北海道":[3.5,4.6],
-   "東京都":[0.42,0.55],
-   "神奈川県":[0.42,0.55],
-   "大阪府":[0.38,0.50],
-   "沖縄県":[1.25,1.55],
-   "秋田県":[1.05,1.10],
-   "岩手県":[1.25,1.15],
-   "宮城県":[0.90,0.90],
-   "青森県":[1.05,1.10],
-   "山形県":[1.00,0.95],
-   "福島県":[1.15,1.15]
- };
- const span = custom[prefName] || [0.90,0.90];
-
- return L.latLngBounds(
-   [p.lat - span[0], p.lon - span[1]],
-   [p.lat + span[0], p.lon + span[1]]
- );
-}
-
-function boundsForCurrentScope(){
- const p = basePref();
- const info = PREFS[p];
- if(!info) return L.latLngBounds([[24,122],[46,146]]);
-
- if(state.scope==="city"){
-   return L.latLngBounds(
-     [info.lat - 0.22, info.lon - 0.28],
-     [info.lat + 0.22, info.lon + 0.28]
-   );
- }
-
- if(state.scope==="prefecture"){
-   return roughPrefBounds(p);
- }
-
- const pts = getScopePrefNames().map(k=>PREFS[k]).filter(Boolean).map(x=>[x.lat,x.lon]);
- if(!pts.length) return roughPrefBounds(p);
- return L.latLngBounds(pts).pad(0.35);
-}
-
-function applyMapMode(){
+function applyMapLock(){
  document.body.classList.toggle("fixed", state.mode==="fixed");
-
- if(state.mode==="normal"){
-  map.setMaxBounds(null);
-  map.options.maxBoundsViscosity = 0;
-  map.setMinZoom(4);
-
-  map.dragging.enable();
-  map.touchZoom.enable();
-  map.doubleClickZoom.enable();
-  map.scrollWheelZoom.enable();
-  map.boxZoom.enable();
-  map.keyboard.enable();
+ if(state.mode==="fixed"){
+  map.dragging.disable(); map.touchZoom.disable(); map.doubleClickZoom.disable(); map.scrollWheelZoom.disable(); map.boxZoom.disable(); map.keyboard.disable();
+  if(map.tap) map.tap.disable();
+  document.getElementById("lockNote").textContent = `固定：${basePref()} / ${scopeLabel()}`;
+ } else {
+  map.dragging.enable(); map.touchZoom.enable(); map.doubleClickZoom.enable(); map.scrollWheelZoom.enable(); map.boxZoom.enable(); map.keyboard.enable();
   if(map.tap) map.tap.enable();
-
   document.getElementById("lockNote").textContent = "通常モード：自由表示";
-  return;
  }
-
- // 固定モード：範囲内での移動・ズームインは許可。ズームアウトと範囲外移動だけ制限。
- map.dragging.enable();
- map.touchZoom.enable();
- map.doubleClickZoom.enable();
- map.scrollWheelZoom.enable();
- map.boxZoom.enable();
- map.keyboard.enable();
- if(map.tap) map.tap.enable();
-
- document.getElementById("lockNote").textContent = `固定：${basePref()} / ${scopeLabel()}（範囲内でズーム可）`;
 }
 
 function setFixedView(){
  const b = boundsForCurrentScope();
  if(!b || !b.isValid()) return;
 
+ // 重要：前回の固定範囲・最小ズームを一度解除。
+ // これをしないと「同県」など狭い範囲から「隣県/地方」へ広げた時にズームアウトできない。
+ map.setMaxBounds(null);
+ map.options.maxBoundsViscosity = 0;
+ map.setMinZoom(4);
+
  applyMapMode();
 
+ map.invalidateSize();
  map.fitBounds(b, {padding:[18,18], animate:false});
 
- // fitBounds直後のズーム値を最小ズームにする。
+ // fitBounds後のズーム値を、その範囲の最小ズームとして設定。
  setTimeout(()=>{
    map.invalidateSize();
+   map.setMaxBounds(null);
+   map.options.maxBoundsViscosity = 0;
+   map.setMinZoom(4);
    map.fitBounds(b, {padding:[18,18], animate:false});
    const minZ = map.getZoom();
    map.setMinZoom(minZ);
@@ -337,14 +270,18 @@ function setFixedView(){
 
  setTimeout(()=>{
    map.invalidateSize();
+   map.setMaxBounds(null);
+   map.options.maxBoundsViscosity = 0;
+   map.setMinZoom(4);
    map.fitBounds(b, {padding:[18,18], animate:false});
-   map.setMinZoom(map.getZoom());
+   const minZ = map.getZoom();
+   map.setMinZoom(minZ);
    map.setMaxBounds(b.pad(0.12));
+   map.options.maxBoundsViscosity = 1.0;
  },250);
 }
 
 function setNormalView(items){
- applyMapMode();
  const pts=[];
  items.forEach(n=>{ if(n.points) n.points.forEach(p=>pts.push(p)); else pts.push([n.lat,n.lon]); });
  if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.18));
@@ -400,9 +337,31 @@ function updateHeader(){
 function rerender(){ updateHeader(); renderLists(); renderMap(); }
 
 document.getElementById("normalBtn").onclick=()=>{ state.mode="normal"; state.gpsPref=null; rerender(); };
-document.getElementById("fixedBtn").onclick=()=>{ state.mode="fixed"; rerender(); };
-document.getElementById("prefSelect").onchange=e=>{ state.pref=e.target.value; state.gpsPref=null; state.mode="fixed"; rerender(); };
-document.querySelectorAll(".scope").forEach(b=>b.onclick=()=>{ state.scope=b.dataset.scope; state.mode="fixed"; rerender(); });
+document.getElementById("fixedBtn").onclick=()=>{
+ state.mode="fixed";
+ map.setMaxBounds(null);
+ map.options.maxBoundsViscosity = 0;
+ map.setMinZoom(4);
+ rerender();
+};
+document.getElementById("prefSelect").onchange=e=>{
+ state.pref=e.target.value;
+ state.gpsPref=null;
+ state.mode="fixed";
+ map.setMaxBounds(null);
+ map.options.maxBoundsViscosity = 0;
+ map.setMinZoom(4);
+ rerender();
+};
+document.querySelectorAll(".scope").forEach(b=>b.onclick=()=>{
+ state.scope=b.dataset.scope;
+ state.mode="fixed";
+ // 倍率変更時は前回の固定ズーム制限を解除してから再計算する。
+ map.setMaxBounds(null);
+ map.options.maxBoundsViscosity = 0;
+ map.setMinZoom(4);
+ rerender();
+});
 ["showEvent","showCrime","showTraffic"].forEach(id=>document.getElementById(id).onchange=renderMap);
 
 function nearestPref(lat,lon){
