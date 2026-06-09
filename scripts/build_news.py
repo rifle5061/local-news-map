@@ -84,8 +84,40 @@ def is_national(item: dict[str, Any]) -> bool:
     )
 
 
+def apply_display_rules(item: dict[str, Any]) -> dict[str, Any]:
+    """カテゴリごとの地図表示ルールを付与する。"""
+    item = dict(item)
+    now = datetime.now(JST).isoformat(timespec="seconds")
+    cat = item.get("category")
+
+    if cat == "event":
+        if item.get("sourceLink") or item.get("alwaysShow"):
+            item["alwaysShow"] = True
+            item["mapRule"] = "always"
+        else:
+            item["mapRule"] = "event_period"
+
+    elif cat == "crime":
+        item["mapRule"] = "crime_24h"
+        item.setdefault("displayHours", 24)
+        item.setdefault("publishedAt", now)
+
+    elif cat == "traffic":
+        if item.get("map") is False or item.get("displayType") == "none" or item.get("precision") == "全国向け情報":
+            item["mapRule"] = "link_only"
+            item["map"] = False
+            item["displayType"] = "none"
+        else:
+            item["mapRule"] = "traffic_6h"
+            item.setdefault("displayHours", 6)
+            item.setdefault("publishedAt", now)
+
+    return item
+
+
 def normalize_item(item: dict[str, Any]) -> dict[str, Any]:
     item = dict(item)
+    item = apply_display_rules(item)
 
     missing = sorted(REQUIRED - set(item))
     if missing:
@@ -264,6 +296,25 @@ def load_rss_items() -> list[dict[str, Any]]:
     return out
 
 
+def print_event_coverage(items):
+    prefs = {}
+    for item in items:
+        if item.get("category") != "event":
+            continue
+        pref = item.get("prefecture", "不明")
+        prefs[pref] = prefs.get(pref, 0) + 1
+
+    target = 5
+    low = {k: v for k, v in prefs.items() if v < target}
+    print("event coverage:")
+    for k in sorted(prefs):
+        print(f"  {k}: {prefs[k]} events")
+    if low:
+        print("prefectures below target:")
+        for k, v in sorted(low.items()):
+            print(f"  {k}: {v}/{target}")
+
+
 def main() -> None:
     manual = load_manual_items()
     rss = load_rss_items()
@@ -286,6 +337,7 @@ def main() -> None:
     }
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"wrote {OUT} ({len(unique)} items)")
+    print_event_coverage(unique)
 
 
 if __name__ == "__main__":
