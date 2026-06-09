@@ -4,1173 +4,425 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>地域ニュースマップ</title>
-<meta name="description" content="地域の事件・防犯、イベント、交通事故・渋滞情報を地図で確認できる生活安全ニュースマップです。">
-<link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{box-sizing:border-box;min-width:0}
-html{scroll-behavior:smooth}
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden;
-  background:#f4f7fb;
-  color:#172033;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
-}
-body{line-height:1.55}
-button,a,select{touch-action:manipulation}
-a{color:inherit}
-.page{
-  width:min(100%,1180px);
-  margin:0 auto;
-  padding:14px 12px 34px;
-}
-.top{
-  background:linear-gradient(135deg,#ffffff,#eef6ff);
-  border:1px solid #dce7f3;
-  border-radius:24px;
-  padding:18px 16px;
-  box-shadow:0 10px 28px rgba(20,45,90,.08);
-  margin-bottom:14px;
-}
-.site-title{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:14px;
-}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{
-  width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
-  color:#fff;font-size:26px;background:linear-gradient(135deg,#1f7cff,#22c55e);
-  box-shadow:0 10px 24px rgba(31,124,255,.22);
-}
-h1{font-size:28px;line-height:1.15;margin:0;font-weight:900}
-.sub{margin:3px 0 0;color:#607089;font-size:14px;font-weight:700}
-.region{
-  text-align:left;
-  flex:1 1 520px;
-  max-width:680px;
-}
-.top-control{
-  background:rgba(255,255,255,.82);
-  border:1px solid #dce7f3;
-  border-radius:18px;
-  padding:12px;
-}
-.top-control-title{
-  font-size:13px;
-  color:#607089;
-  font-weight:900;
-  margin-bottom:7px;
-}
-.top-control-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-  margin:7px 0;
-}
-.top-control-label{
-  font-size:12px;
-  color:#607089;
-  font-weight:900;
-  margin-right:2px;
-}
-.region-name{
-  font-size:17px;
-  font-weight:900;
-  margin-top:8px;
-  color:#172033;
-}
-.region-note{color:#607089;font-size:12px}
-.weather{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px}
-.weather-main,.weather-box{
-  background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:14px;
-}
-.weather-main{display:flex;align-items:center;gap:14px}
-.weather-icon{
-  width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
-  font-size:34px;background:#eef7ff;
-}
-.weather-title{font-weight:900;font-size:18px}
-.weather-small{color:#607089;font-size:13px}
-.weather-box strong{display:block;font-size:26px;line-height:1.1}
-.weather-box span{color:#607089;font-size:13px}
-
-.control-card{
-  background:#fff;border:1px solid #dce7f3;border-radius:22px;
-  padding:14px 16px;margin-bottom:14px;
-  box-shadow:0 8px 24px rgba(20,45,90,.06);
-}
-.control-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  align-items:center;
-  margin:8px 0;
-}
-.control-title{
-  font-weight:900;
-  color:#273449;
-  margin-right:2px;
-}
-.mode-btn,.scope-btn,.geo-btn{
-  appearance:none;
-  border:1px solid #dce7f3;
-  background:#f3f7fc;
-  color:#273449;
-  border-radius:999px;
-  padding:9px 13px;
-  font-weight:900;
-  cursor:pointer;
-}
-.mode-btn.active,.scope-btn.active{
-  background:#1f7cff;
-  color:#fff;
-  border-color:#1f7cff;
-}
-.geo-btn{
-  background:#eaf7ef;
-  color:#0f7a35;
-  border-color:#cdeed9;
-}
-.pref-select{
-  appearance:none;
-  border:1px solid #dce7f3;
-  background:#f8fafc;
-  color:#273449;
-  border-radius:999px;
-  padding:9px 34px 9px 13px;
-  font-weight:900;
-  max-width:220px;
-}
-.fixed-options{
-  display:none;
-  padding-top:6px;
-  border-top:1px solid #eef2f7;
-}
-.fixed-options.active{display:block}
-.mode-note{
-  color:#607089;
-  font-size:13px;
-  margin:8px 0 0;
-}
-
-.card{
-  background:#fff;border:1px solid #dce7f3;border-radius:22px;overflow:hidden;
-  box-shadow:0 8px 24px rgba(20,45,90,.06);
-}
-.map-head{
-  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
-  padding:14px 16px;border-bottom:1px solid #eef2f7;
-}
-.map-head h2{margin:0;font-size:20px}
-.map-desc{margin:3px 0 0;color:#607089;font-size:13px}
-.layer-checks{
-  display:flex;flex-wrap:wrap;gap:8px;
-  justify-content:flex-end;
-}
-.check-pill{
-  flex:0 0 auto;
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  background:#f3f7fc;
-  border:1px solid #dce7f3;
-  border-radius:999px;
-  padding:8px 11px;
-  font-size:13px;
-  font-weight:900;
-  color:#273449;
-  white-space:nowrap;
-}
-.check-pill input{
-  transform:scale(1.12);
-  accent-color:#1f7cff;
-}
-.check-pill.crime input{accent-color:#ef4444}
-.check-pill.event input{accent-color:#22c55e}
-.check-pill.traffic input{accent-color:#f97316}
+html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;background:#f4f8fd;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;line-height:1.55}
+button,select,input{font:inherit}
+.page{width:min(100%,1180px);margin:0 auto;padding:12px 10px 32px}
+.hero{background:linear-gradient(135deg,#fff,#eef7ff);border:1px solid #dce7f3;border-radius:24px;padding:16px;box-shadow:0 10px 28px rgba(20,45,90,.08);margin-bottom:12px}
+.header{display:grid;grid-template-columns:1fr 1.5fr;gap:14px;align-items:start}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#1f7cff,#22c55e);font-size:26px;color:white}
+h1{margin:0;font-size:28px;line-height:1.15;font-weight:900}
+.sub{margin:4px 0 0;color:#607089;font-size:14px;font-weight:700}
+.panel{background:rgba(255,255,255,.88);border:1px solid #dce7f3;border-radius:18px;padding:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.label{font-size:13px;color:#607089;font-weight:900;min-width:70px}
+.btn,.scope,.geo{border:1px solid #dce7f3;background:#f3f7fc;color:#273449;border-radius:999px;padding:9px 13px;font-weight:900;cursor:pointer}
+.btn.active,.scope.active{background:#1f7cff;color:#fff;border-color:#1f7cff}
+.geo{background:#eaf7ef;color:#0f7a35;border-color:#cdeed9}
+select{border:1px solid #dce7f3;background:#f8fafc;color:#273449;border-radius:999px;padding:9px 13px;font-weight:900;max-width:210px}
+.status{margin-top:8px;font-size:20px;font-weight:900}
+.status-note{font-size:12px;color:#607089}
+.weather{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px;margin-top:12px}
+.weather>div{background:#fff;border:1px solid #dce7f3;border-radius:18px;padding:14px}
+.weather-main{display:flex;gap:12px;align-items:center}
+.wicon{width:56px;height:56px;border-radius:18px;background:#eef7ff;display:grid;place-items:center;font-size:32px}
+.wtitle{font-size:18px;font-weight:900}
+.wsmall{font-size:13px;color:#607089}
+.wbox strong{display:block;font-size:25px}
+.wbox span{font-size:13px;color:#607089}
+.card{background:#fff;border:1px solid #dce7f3;border-radius:22px;overflow:hidden;box-shadow:0 8px 24px rgba(20,45,90,.06);margin-top:12px}
+.map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #eef2f7}
+.map-head h2{margin:0;font-size:21px}
+.map-head p{margin:4px 0 0;color:#607089;font-size:13px}
+.checks{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.check{display:inline-flex;align-items:center;gap:6px;background:#f3f7fc;border:1px solid #dce7f3;border-radius:999px;padding:8px 11px;font-weight:900;font-size:13px;white-space:nowrap}
+.check input{transform:scale(1.12);accent-color:#1f7cff}
 .map-wrap{position:relative}
-#map{
-  width:100%;
-  height:560px;
-  background:#e9eef5;
-}
-.legend{
-  position:absolute;z-index:500;left:14px;bottom:14px;
-  background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:14px;
-  box-shadow:0 8px 24px rgba(20,45,90,.12);
-  padding:11px;font-size:12px;color:#344056;
-}
+#map{width:100%;height:560px;background:#e9eef5}
+.lock{position:absolute;z-index:501;right:14px;top:14px;background:rgba(23,32,51,.88);color:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;pointer-events:none}
+.legend{position:absolute;z-index:500;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dce5f0;border-radius:14px;padding:11px;font-size:12px;color:#344056;box-shadow:0 8px 24px rgba(20,45,90,.12)}
 .legend div{display:flex;gap:7px;align-items:center;margin:4px 0}
 .dot{width:13px;height:13px;border-radius:999px;display:inline-block}
 .line{width:22px;height:5px;border-radius:999px;display:inline-block}
-.news-wrap{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-top:14px;
-}
-.news-col{
-  background:#fff;
-  border:1px solid #dce7f3;
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:0 8px 24px rgba(20,45,90,.06);
-}
-.news-col h2{
-  margin:0;padding:15px 16px;font-size:19px;border-bottom:1px solid #eef2f7;
-  display:flex;justify-content:space-between;align-items:center;gap:8px;
-}
-.count-badge{
-  font-size:12px;
-  color:#607089;
-  background:#f3f7fc;
-  border-radius:999px;
-  padding:3px 8px;
-}
-.news-col.crime h2{color:#c01822}
-.news-col.event h2{color:#0f8a3a}
-.news-col.traffic h2{color:#c95b00}
-.news-item{
-  display:block;width:100%;border:none;border-bottom:1px solid #eef2f7;
-  background:#fff;text-align:left;padding:14px 16px;cursor:pointer;
-}
-.news-item:hover{background:#f8fbff}
-.news-title{margin:0 0 5px;font-weight:900;font-size:15px}
-.news-text{margin:0 0 7px;color:#4f5d73;font-size:13px}
-.news-meta{color:#8390a4;font-size:12px}
-.action{
-  display:inline-block;margin-top:8px;background:#eef7ff;color:#1268c5;
-  border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;
-}
-.empty{
-  padding:16px;
-  color:#607089;
-  font-size:13px;
-}
-.info{
-  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;
-}
-.info-card{
-  background:#fff;border:1px solid #dce7f3;border-radius:22px;padding:18px;
-  box-shadow:0 8px 24px rgba(20,45,90,.06);
-}
-.info-card h3{margin:0 0 8px;font-size:18px}
-.info-card p{margin:0;color:#4f5d73;font-size:14px}
-.footer{
-  margin-top:14px;padding:18px 12px;text-align:center;color:#718096;font-size:12px;
-}
-.leaflet-popup-content-wrapper{border-radius:16px;box-shadow:0 12px 30px rgba(20,45,90,.2)}
+body.fixed .leaflet-control-zoom{display:block}
+.news{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.col{background:#fff;border:1px solid #dce7f3;border-radius:22px;overflow:hidden;box-shadow:0 8px 24px rgba(20,45,90,.06)}
+.col h2{margin:0;padding:15px 16px;font-size:19px;border-bottom:1px solid #eef2f7;display:flex;justify-content:space-between;gap:8px}
+.count{font-size:12px;color:#607089;background:#f3f7fc;border-radius:999px;padding:3px 8px}
+.item{display:block;width:100%;border:none;border-bottom:1px solid #eef2f7;background:#fff;text-align:left;padding:14px 16px;cursor:pointer}
+.item:hover{background:#f8fbff}
+.item h3{margin:0 0 5px;font-size:15px}
+.item p{margin:0 0 6px;color:#4f5d73;font-size:13px}
+.meta{font-size:12px;color:#8390a4}
+.action{display:inline-block;margin-top:8px;background:#eef7ff;color:#1268c5;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}
+.empty{padding:16px;color:#607089;font-size:13px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.info div{background:#fff;border:1px solid #dce7f3;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(20,45,90,.06)}
+.info h3{margin:0 0 8px}
+.info p{margin:0;color:#4f5d73;font-size:14px}
+.footer{text-align:center;color:#718096;font-size:12px;padding:18px 8px}
+.current-marker{width:18px;height:18px;border-radius:999px;background:#1f7cff;border:3px solid #fff;box-shadow:0 0 0 6px rgba(31,124,255,.18),0 4px 12px rgba(0,0,0,.25)}
 .popup-title{font-weight:900;font-size:15px;margin-bottom:4px}
 .popup-meta{color:#66758a;font-size:12px;margin-bottom:8px}
-.popup-link{
-  display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;
-  background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px;
-}
-.current-marker{
-  width:18px;height:18px;border-radius:999px;background:#1f7cff;border:3px solid #fff;
-  box-shadow:0 0 0 6px rgba(31,124,255,.18),0 4px 12px rgba(0,0,0,.25);
-}
-@media(max-width:900px){
-  .site-title{align-items:flex-start;flex-direction:column}
-  .region{text-align:left}
-  .weather{grid-template-columns:1fr 1fr}
-  .weather-main{grid-column:1 / -1}
-  .map-head{flex-direction:column}
-  .layer-checks{justify-content:flex-start}
-  #map{height:500px}
-  .news-wrap{grid-template-columns:1fr}
-  .info{grid-template-columns:1fr}
-}
-@media(max-width:520px){
-  .page{padding:10px 8px 28px}
-  .top,.control-card{border-radius:22px;padding:16px 12px}
-  h1{font-size:25px}
-  .logo{width:44px;height:44px}
-  .region-name{font-size:20px}
-  .weather{grid-template-columns:1fr 1fr}
-  .weather-box strong{font-size:23px}
-  #map{height:430px}
-  .legend{left:10px;right:10px;bottom:10px}
-}
-body.normal-mode #fixedTopControls,
-body.normal-mode #scopeTopControls{
-  opacity:.45;
-}
-body.normal-mode #fixedTopControls button,
-body.normal-mode #fixedTopControls select,
-body.normal-mode #scopeTopControls button{
-  pointer-events:none;
-}
-@media(max-width:900px){
-  .region{
-    max-width:none;
-    width:100%;
-    flex:0 0 auto;
-  }
-}
-
-.fixed-view-note{
-  position:absolute;
-  z-index:501;
-  right:14px;
-  top:14px;
-  background:rgba(23,32,51,.86);
-  color:#fff;
-  border-radius:999px;
-  padding:8px 12px;
-  font-size:12px;
-  font-weight:900;
-  box-shadow:0 8px 20px rgba(0,0,0,.18);
-  pointer-events:none;
-}
-@media(max-width:520px){
-  .fixed-view-note{left:10px;right:10px;top:10px;text-align:center;}
-}
+.popup-link{display:inline-block;text-decoration:none;border-radius:999px;padding:7px 10px;background:#1f7cff;color:#fff!important;font-weight:900;font-size:12px}
+@media(max-width:900px){.header{grid-template-columns:1fr}.weather{grid-template-columns:1fr 1fr}.weather-main{grid-column:1/-1}#map{height:500px}.news{grid-template-columns:1fr}.info{grid-template-columns:1fr}}
+@media(max-width:520px){.page{padding:10px 8px 28px}.hero{border-radius:22px;padding:14px 12px}h1{font-size:25px}#map{height:430px}.lock{left:10px;right:10px;text-align:center}.legend{left:10px;right:10px;bottom:10px}}
 </style>
 </head>
-<body class="normal-mode">
+<body>
 <main class="page">
-
-  <section class="top">
-    <div class="site-title">
-      <div class="brand">
-        <div class="logo">🗺</div>
-        <div>
-          <h1>地域ニュースマップ</h1>
-          <p class="sub">地域の安全と情報を、地図でつなぐ</p>
-        </div>
-      </div>
-      <div class="region">
-        <div class="top-control">
-          <div class="top-control-title">表示設定</div>
-
-          <div class="top-control-row">
-            <span class="top-control-label">モード</span>
-            <button class="mode-btn active" id="normalModeBtn" data-mode="normal">通常モード</button>
-            <button class="mode-btn" id="fixedModeBtn" data-mode="fixed">固定モード</button>
-          </div>
-
-          <div class="top-control-row" id="fixedTopControls">
-            <span class="top-control-label">固定基準</span>
-            <button class="geo-btn" id="useLocationBtn">📍 GPS現在地</button>
-            <select class="pref-select" id="prefSelect">
-              <option value="北海道">北海道</option>
-              <option value="青森県">青森県</option>
-              <option value="岩手県">岩手県</option>
-              <option value="宮城県">宮城県</option>
-              <option value="秋田県">秋田県</option>
-              <option value="山形県">山形県</option>
-              <option value="福島県">福島県</option>
-              <option value="茨城県">茨城県</option>
-              <option value="栃木県">栃木県</option>
-              <option value="群馬県">群馬県</option>
-              <option value="埼玉県">埼玉県</option>
-              <option value="千葉県">千葉県</option>
-              <option value="東京都">東京都</option>
-              <option value="神奈川県">神奈川県</option>
-              <option value="山梨県">山梨県</option>
-              <option value="新潟県">新潟県</option>
-              <option value="長野県">長野県</option>
-              <option value="静岡県">静岡県</option>
-              <option value="愛知県">愛知県</option>
-              <option value="岐阜県">岐阜県</option>
-              <option value="三重県">三重県</option>
-              <option value="富山県">富山県</option>
-              <option value="石川県">石川県</option>
-              <option value="福井県">福井県</option>
-              <option value="滋賀県">滋賀県</option>
-              <option value="京都府">京都府</option>
-              <option value="大阪府">大阪府</option>
-              <option value="兵庫県">兵庫県</option>
-              <option value="奈良県">奈良県</option>
-              <option value="和歌山県">和歌山県</option>
-              <option value="鳥取県">鳥取県</option>
-              <option value="島根県">島根県</option>
-              <option value="岡山県">岡山県</option>
-              <option value="広島県">広島県</option>
-              <option value="山口県">山口県</option>
-              <option value="徳島県">徳島県</option>
-              <option value="香川県">香川県</option>
-              <option value="愛媛県">愛媛県</option>
-              <option value="高知県">高知県</option>
-              <option value="福岡県">福岡県</option>
-              <option value="佐賀県">佐賀県</option>
-              <option value="長崎県">長崎県</option>
-              <option value="熊本県">熊本県</option>
-              <option value="大分県">大分県</option>
-              <option value="宮崎県">宮崎県</option>
-              <option value="鹿児島県">鹿児島県</option>
-              <option value="沖縄県">沖縄県</option>
-            </select>
-          </div>
-
-          <div class="top-control-row" id="scopeTopControls">
-            <span class="top-control-label">倍率</span>
-            <button class="scope-btn active" data-scope="city">同市区町村</button>
-            <button class="scope-btn" data-scope="prefecture">同県</button>
-            <button class="scope-btn" data-scope="neighbors">隣県まで</button>
-            <button class="scope-btn" data-scope="region">地方</button>
-            <button class="scope-btn" data-scope="eastwest">東/西日本</button>
-          </div>
-
-          <div class="region-name" id="regionName">全国ニュース</div>
-          <div class="region-note" id="regionNote">通常モード</div>
-        </div>
-      </div>
+<section class="hero">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">🗺</div>
+      <div><h1>地域ニュースマップ</h1><p class="sub">イベント共有・渋滞回避・身の安全確認</p></div>
     </div>
-
-    <div class="weather">
-      <div class="weather-main">
-        <div class="weather-icon" id="weatherIcon">☁️</div>
-        <div>
-          <div class="weather-title" id="weatherTitle">地域天気</div>
-          <div class="weather-small" id="weatherSmall">通常/固定モードと表示範囲を選択</div>
-        </div>
-      </div>
-      <div class="weather-box">
-        <strong id="temp">--℃</strong>
-        <span>気温</span>
-      </div>
-      <div class="weather-box">
-        <strong id="rain">--%</strong>
-        <span>降水確率</span>
-      </div>
-      <div class="weather-box">
-        <strong id="wind">--m</strong>
-        <span>風速</span>
-      </div>
+    <div class="panel">
+      <div class="row"><span class="label">モード</span><button class="btn active" id="normalBtn">通常モード</button><button class="btn" id="fixedBtn">固定モード</button></div>
+      <div class="row"><span class="label">固定基準</span><button class="geo" id="gpsBtn">📍 GPS現在地</button><select id="prefSelect"><option value="北海道">北海道</option>
+<option value="青森県">青森県</option>
+<option value="岩手県">岩手県</option>
+<option value="宮城県">宮城県</option>
+<option value="秋田県">秋田県</option>
+<option value="山形県">山形県</option>
+<option value="福島県">福島県</option>
+<option value="茨城県">茨城県</option>
+<option value="栃木県">栃木県</option>
+<option value="群馬県">群馬県</option>
+<option value="埼玉県">埼玉県</option>
+<option value="千葉県">千葉県</option>
+<option value="東京都">東京都</option>
+<option value="神奈川県">神奈川県</option>
+<option value="山梨県">山梨県</option>
+<option value="新潟県">新潟県</option>
+<option value="長野県">長野県</option>
+<option value="静岡県">静岡県</option>
+<option value="愛知県">愛知県</option>
+<option value="岐阜県">岐阜県</option>
+<option value="三重県">三重県</option>
+<option value="富山県">富山県</option>
+<option value="石川県">石川県</option>
+<option value="福井県">福井県</option>
+<option value="滋賀県">滋賀県</option>
+<option value="京都府">京都府</option>
+<option value="大阪府">大阪府</option>
+<option value="兵庫県">兵庫県</option>
+<option value="奈良県">奈良県</option>
+<option value="和歌山県">和歌山県</option>
+<option value="鳥取県">鳥取県</option>
+<option value="島根県">島根県</option>
+<option value="岡山県">岡山県</option>
+<option value="広島県">広島県</option>
+<option value="山口県">山口県</option>
+<option value="徳島県">徳島県</option>
+<option value="香川県">香川県</option>
+<option value="愛媛県">愛媛県</option>
+<option value="高知県">高知県</option>
+<option value="福岡県">福岡県</option>
+<option value="佐賀県">佐賀県</option>
+<option value="長崎県">長崎県</option>
+<option value="熊本県">熊本県</option>
+<option value="大分県">大分県</option>
+<option value="宮崎県">宮崎県</option>
+<option value="鹿児島県">鹿児島県</option>
+<option value="沖縄県">沖縄県</option></select></div>
+      <div class="row"><span class="label">倍率</span><button class="scope active" data-scope="city">同市区町村</button><button class="scope" data-scope="prefecture">同県</button><button class="scope" data-scope="neighbors">隣県まで</button><button class="scope" data-scope="region">地方</button><button class="scope" data-scope="side">東/西日本</button></div>
+      <div class="status" id="status">全国ニュース</div><div class="status-note" id="statusNote">通常モード</div>
     </div>
-  </section>
+  </div>
+  <div class="weather">
+    <div class="weather-main"><div class="wicon">☁️</div><div><div class="wtitle" id="weatherTitle">地域天気</div><div class="wsmall">固定モードでは選択地域の天気を表示</div></div></div>
+    <div class="wbox"><strong id="temp">--℃</strong><span>気温</span></div>
+    <div class="wbox"><strong id="rain">--%</strong><span>降水確率</span></div>
+    <div class="wbox"><strong id="wind">--m</strong><span>風速</span></div>
+  </div>
+</section>
 
-  <section class="card">
-    <div class="map-head">
-      <div>
-        <h2>ニュース地図</h2>
-        <p class="map-desc">地図上に表示する情報を選択できます。</p>
-      </div>
+<section class="card">
+  <div class="map-head">
+    <div><h2>ニュース地図</h2><p>地図上に表示する情報を選択できます。</p></div>
+    <div class="checks">
+      <label class="check"><input type="checkbox" id="showEvent" checked>イベント情報</label>
+      <label class="check"><input type="checkbox" id="showCrime" checked>事件・防犯</label>
+      <label class="check"><input type="checkbox" id="showTraffic" checked>渋滞・交通事故</label>
+    </div>
+  </div>
+  <div class="map-wrap"><div id="map"></div><div class="lock" id="lockNote">通常モード：自由表示</div>
+  <div class="legend">
+    <div><span class="dot" style="background:#ef4444;opacity:.45"></span>事件・防犯：エリア表示</div>
+    <div><span class="dot" style="background:#22c55e"></span>イベント：ピン表示</div>
+    <div><span class="line" style="background:#f97316"></span>渋滞：道路ライン</div>
+  </div></div>
+</section>
 
-      <div class="layer-checks" id="layerChecks">
-        <label class="check-pill event">
-          <input type="checkbox" id="showEvent" checked>
-          イベント情報
-        </label>
-        <label class="check-pill crime">
-          <input type="checkbox" id="showCrime" checked>
-          事件・防犯
-        </label>
-        <label class="check-pill traffic">
-          <input type="checkbox" id="showTraffic" checked>
-          渋滞・交通事故
-        </label>
-      </div>
-    </div>
+<section class="news">
+  <div class="col"><h2 style="color:#c01822">事件・防犯 <span class="count" id="crimeCount">0件</span></h2><div id="crimeList"></div></div>
+  <div class="col"><h2 style="color:#0f8a3a">イベント <span class="count" id="eventCount">0件</span></h2><div id="eventList"></div></div>
+  <div class="col"><h2 style="color:#c95b00">交通事故・渋滞 <span class="count" id="trafficCount">0件</span></h2><div id="trafficList"></div></div>
+</section>
 
-    <div class="map-wrap">
-      <div id="map"></div>
-      <div class="fixed-view-note" id="fixedViewNote">通常モード：全国表示</div>
-      <div class="legend">
-        <div><span class="dot" style="background:#ef4444;opacity:.45;"></span>事件・防犯：エリア表示</div>
-        <div><span class="dot" style="background:#22c55e;"></span>イベント：ピン表示</div>
-        <div><span class="line" style="background:#f97316;"></span>交通・渋滞：道路ライン</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="news-wrap">
-    <div class="news-col crime">
-      <h2>事件・防犯 <span class="count-badge" id="crimeCount">0件</span></h2>
-      <div id="crimeList"></div>
-    </div>
-    <div class="news-col event">
-      <h2>イベント <span class="count-badge" id="eventCount">0件</span></h2>
-      <div id="eventList"></div>
-    </div>
-    <div class="news-col traffic">
-      <h2>交通事故・渋滞 <span class="count-badge" id="trafficCount">0件</span></h2>
-      <div id="trafficList"></div>
-    </div>
-  </section>
-
-  <section class="info" id="about">
-    <div class="info-card">
-      <h3>このサイトの目的</h3>
-      <p>
-        地域ニュースマップは、イベント情報の共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。現在は秋田県周辺の実データ反映テスト版です。
-      </p>
-    </div>
-    <div class="info-card">
-      <h3>表示ルール</h3>
-      <p>
-        事件・防犯情報は個人宅を特定しないエリア表示、イベント情報は開催場所のピン表示、交通事故・渋滞は道路上の線や周辺表示で整理します。
-      </p>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div>最終更新：<span id="updatedAt">2026/06/09 19:30</span></div>
-    <div>※このページは実データ反映テスト版です。事件・防犯は個人宅等を特定しないエリア表示にしています。交通情報は公式リンク確認を優先し、区間が明確なもののみ道路ライン表示する設計です。最新情報は必ず情報元・公式情報を確認してください。</div>
-  </footer>
-
+<section class="info"><div><h3>このサイトの目的</h3><p>地域イベントの共有、交通事故・渋滞の回避、事件・防犯情報による身の安全確認を目的とした地図型ニュースサイトです。</p></div><div><h3>表示ルール</h3><p>事件・防犯は個人宅を特定しないエリア表示、イベントは会場ピン、渋滞は区間が分かる場合のみ道路ラインで表示します。</p></div></section>
+<footer class="footer">最終更新：2026/06/09 20:20<br>※実データ反映テスト版です。最新情報は必ず情報元・公式情報を確認してください。</footer>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-(() => {
-  "use strict";
+const PREFS = {"北海道": {"lat": 43.0642, "lon": 141.3469, "city": "札幌市", "region": "北海道", "side": "east", "neighbors": ["青森県"]}, "青森県": {"lat": 40.8244, "lon": 140.74, "city": "青森市", "region": "東北", "side": "east", "neighbors": ["北海道", "岩手県", "秋田県"]}, "岩手県": {"lat": 39.7036, "lon": 141.1527, "city": "盛岡市", "region": "東北", "side": "east", "neighbors": ["青森県", "秋田県", "宮城県"]}, "宮城県": {"lat": 38.2688, "lon": 140.8721, "city": "仙台市", "region": "東北", "side": "east", "neighbors": ["岩手県", "秋田県", "山形県", "福島県"]}, "秋田県": {"lat": 39.7186, "lon": 140.1024, "city": "秋田市", "region": "東北", "side": "east", "neighbors": ["青森県", "岩手県", "宮城県", "山形県"]}, "山形県": {"lat": 38.2404, "lon": 140.3633, "city": "山形市", "region": "東北", "side": "east", "neighbors": ["秋田県", "宮城県", "福島県", "新潟県"]}, "福島県": {"lat": 37.7503, "lon": 140.4676, "city": "福島市", "region": "東北", "side": "east", "neighbors": ["宮城県", "山形県", "新潟県", "栃木県", "茨城県", "群馬県"]}, "茨城県": {"lat": 36.3418, "lon": 140.4468, "city": "水戸市", "region": "関東", "side": "east", "neighbors": ["福島県", "栃木県", "埼玉県", "千葉県"]}, "栃木県": {"lat": 36.5658, "lon": 139.8836, "city": "宇都宮市", "region": "関東", "side": "east", "neighbors": ["福島県", "群馬県", "埼玉県", "茨城県"]}, "群馬県": {"lat": 36.3907, "lon": 139.0604, "city": "前橋市", "region": "関東", "side": "east", "neighbors": ["新潟県", "福島県", "栃木県", "埼玉県", "長野県"]}, "埼玉県": {"lat": 35.8617, "lon": 139.6455, "city": "さいたま市", "region": "関東", "side": "east", "neighbors": ["東京都", "千葉県", "茨城県", "栃木県", "群馬県", "長野県", "山梨県"]}, "千葉県": {"lat": 35.6074, "lon": 140.1065, "city": "千葉市", "region": "関東", "side": "east", "neighbors": ["東京都", "埼玉県", "茨城県", "神奈川県"]}, "東京都": {"lat": 35.6812, "lon": 139.7671, "city": "千代田区", "region": "関東", "side": "east", "neighbors": ["神奈川県", "埼玉県", "千葉県", "山梨県"]}, "神奈川県": {"lat": 35.4437, "lon": 139.638, "city": "横浜市", "region": "関東", "side": "east", "neighbors": ["東京都", "静岡県", "山梨県", "千葉県"]}, "山梨県": {"lat": 35.6639, "lon": 138.5683, "city": "甲府市", "region": "甲信越", "side": "east", "neighbors": ["東京都", "神奈川県", "埼玉県", "長野県", "静岡県"]}, "新潟県": {"lat": 37.9026, "lon": 139.0232, "city": "新潟市", "region": "甲信越", "side": "east", "neighbors": ["山形県", "福島県", "群馬県", "長野県", "富山県"]}, "長野県": {"lat": 36.6513, "lon": 138.181, "city": "長野市", "region": "甲信越", "side": "east", "neighbors": ["新潟県", "群馬県", "埼玉県", "山梨県", "静岡県", "愛知県", "岐阜県", "富山県"]}, "静岡県": {"lat": 34.9756, "lon": 138.3828, "city": "静岡市", "region": "東海", "side": "east", "neighbors": ["神奈川県", "山梨県", "長野県", "愛知県"]}, "愛知県": {"lat": 35.1802, "lon": 136.9066, "city": "名古屋市", "region": "東海", "side": "west", "neighbors": ["静岡県", "長野県", "岐阜県", "三重県"]}, "岐阜県": {"lat": 35.3912, "lon": 136.7223, "city": "岐阜市", "region": "東海", "side": "west", "neighbors": ["富山県", "石川県", "福井県", "滋賀県", "三重県", "愛知県", "長野県"]}, "三重県": {"lat": 34.7303, "lon": 136.5086, "city": "津市", "region": "東海", "side": "west", "neighbors": ["愛知県", "岐阜県", "滋賀県", "京都府", "奈良県", "和歌山県"]}, "富山県": {"lat": 36.6953, "lon": 137.2113, "city": "富山市", "region": "北陸", "side": "west", "neighbors": ["新潟県", "長野県", "岐阜県", "石川県"]}, "石川県": {"lat": 36.5947, "lon": 136.6256, "city": "金沢市", "region": "北陸", "side": "west", "neighbors": ["富山県", "岐阜県", "福井県"]}, "福井県": {"lat": 36.0652, "lon": 136.2216, "city": "福井市", "region": "北陸", "side": "west", "neighbors": ["石川県", "岐阜県", "滋賀県", "京都府"]}, "滋賀県": {"lat": 35.0045, "lon": 135.8686, "city": "大津市", "region": "関西", "side": "west", "neighbors": ["福井県", "岐阜県", "三重県", "京都府"]}, "京都府": {"lat": 35.0116, "lon": 135.7681, "city": "京都市", "region": "関西", "side": "west", "neighbors": ["福井県", "滋賀県", "三重県", "奈良県", "大阪府", "兵庫県"]}, "大阪府": {"lat": 34.6937, "lon": 135.5023, "city": "大阪市", "region": "関西", "side": "west", "neighbors": ["京都府", "兵庫県", "奈良県", "和歌山県"]}, "兵庫県": {"lat": 34.6901, "lon": 135.1955, "city": "神戸市", "region": "関西", "side": "west", "neighbors": ["京都府", "大阪府", "岡山県", "鳥取県", "徳島県"]}, "奈良県": {"lat": 34.6851, "lon": 135.8048, "city": "奈良市", "region": "関西", "side": "west", "neighbors": ["京都府", "大阪府", "和歌山県", "三重県"]}, "和歌山県": {"lat": 34.226, "lon": 135.1675, "city": "和歌山市", "region": "関西", "side": "west", "neighbors": ["大阪府", "奈良県", "三重県", "徳島県"]}, "鳥取県": {"lat": 35.5039, "lon": 134.2383, "city": "鳥取市", "region": "中国", "side": "west", "neighbors": ["兵庫県", "岡山県", "島根県", "広島県"]}, "島根県": {"lat": 35.4723, "lon": 133.0505, "city": "松江市", "region": "中国", "side": "west", "neighbors": ["鳥取県", "広島県", "山口県"]}, "岡山県": {"lat": 34.6551, "lon": 133.9195, "city": "岡山市", "region": "中国", "side": "west", "neighbors": ["兵庫県", "鳥取県", "広島県", "香川県"]}, "広島県": {"lat": 34.3853, "lon": 132.4553, "city": "広島市", "region": "中国", "side": "west", "neighbors": ["岡山県", "鳥取県", "島根県", "山口県", "愛媛県"]}, "山口県": {"lat": 34.1785, "lon": 131.4737, "city": "山口市", "region": "中国", "side": "west", "neighbors": ["島根県", "広島県", "福岡県"]}, "徳島県": {"lat": 34.0658, "lon": 134.5593, "city": "徳島市", "region": "四国", "side": "west", "neighbors": ["香川県", "高知県", "兵庫県", "和歌山県"]}, "香川県": {"lat": 34.3401, "lon": 134.0434, "city": "高松市", "region": "四国", "side": "west", "neighbors": ["徳島県", "愛媛県", "岡山県"]}, "愛媛県": {"lat": 33.8416, "lon": 132.7661, "city": "松山市", "region": "四国", "side": "west", "neighbors": ["香川県", "高知県", "広島県", "大分県"]}, "高知県": {"lat": 33.5597, "lon": 133.5311, "city": "高知市", "region": "四国", "side": "west", "neighbors": ["徳島県", "愛媛県"]}, "福岡県": {"lat": 33.5902, "lon": 130.4017, "city": "福岡市", "region": "九州", "side": "west", "neighbors": ["佐賀県", "熊本県", "大分県", "山口県"]}, "佐賀県": {"lat": 33.2494, "lon": 130.2988, "city": "佐賀市", "region": "九州", "side": "west", "neighbors": ["福岡県", "長崎県"]}, "長崎県": {"lat": 32.7448, "lon": 129.8737, "city": "長崎市", "region": "九州", "side": "west", "neighbors": ["佐賀県"]}, "熊本県": {"lat": 32.7898, "lon": 130.7417, "city": "熊本市", "region": "九州", "side": "west", "neighbors": ["福岡県", "大分県", "宮崎県", "鹿児島県"]}, "大分県": {"lat": 33.2382, "lon": 131.6126, "city": "大分市", "region": "九州", "side": "west", "neighbors": ["福岡県", "熊本県", "宮崎県", "愛媛県"]}, "宮崎県": {"lat": 31.9111, "lon": 131.4239, "city": "宮崎市", "region": "九州", "side": "west", "neighbors": ["大分県", "熊本県", "鹿児島県"]}, "鹿児島県": {"lat": 31.5602, "lon": 130.5581, "city": "鹿児島市", "region": "九州", "side": "west", "neighbors": ["熊本県", "宮崎県", "沖縄県"]}, "沖縄県": {"lat": 26.2124, "lon": 127.6792, "city": "那覇市", "region": "沖縄", "side": "west", "neighbors": ["鹿児島県"]}};
+const NEWS = [{"id": 101, "category": "crime", "title": "秋田県内の不審者情報", "summary": "秋田県警が公表している不審者情報。事件・防犯情報は個人宅を特定しないようエリア表示にしています。", "area": "秋田県内", "prefecture": "秋田県", "city": "秋田市", "region": "東北", "side": "east", "time": "2026/06/03更新", "precision": "県内情報", "displayType": "area", "lat": 39.7186, "lon": 140.1024, "radius": 5000, "url": "https://www.police.pref.akita.lg.jp/kenkei/osirase/suspicious", "source": "秋田県警察"}, {"id": 201, "category": "event", "title": "青空フリーマーケット", "summary": "秋田拠点センターアルヴェで開催されるフリーマーケット情報。", "area": "秋田拠点センターアルヴェ", "prefecture": "秋田県", "city": "秋田市", "region": "東北", "side": "east", "time": "2026/06/09", "precision": "会場レベル", "displayType": "pin", "lat": 39.7169, "lon": 140.1298, "url": "https://akitanote.jp/event/6.html", "source": "秋田県イベント情報"}, {"id": 202, "category": "event", "title": "東京カレーカルチャー in 秋田", "summary": "西武秋田店で開催されるグルメ系イベント。", "area": "西武秋田店", "prefecture": "秋田県", "city": "秋田市", "region": "東北", "side": "east", "time": "2026/06/09〜06/21", "precision": "会場レベル", "displayType": "pin", "lat": 39.7186, "lon": 140.1265, "url": "https://akitanote.jp/event/6.html", "source": "秋田県イベント情報"}, {"id": 203, "category": "event", "title": "バラフェスタ2026", "summary": "秋田県立農業科学館で開催される季節イベント。", "area": "秋田県立農業科学館", "prefecture": "秋田県", "city": "大仙市", "region": "東北", "side": "east", "time": "2026/06/06〜06/28", "precision": "会場レベル", "displayType": "pin", "lat": 39.453, "lon": 140.493, "url": "https://www.walkerplus.com/event_list/0620/ar0205/", "source": "ウォーカープラス"}, {"id": 301, "category": "traffic", "title": "秋田県の道路交通情報", "summary": "渋滞・事故・規制などの最新状況はJARTIC等の公式交通情報で確認できます。", "area": "秋田市周辺", "prefecture": "秋田県", "city": "秋田市", "region": "東北", "side": "east", "time": "リアルタイム確認", "precision": "公式リンク確認", "displayType": "area", "lat": 39.7186, "lon": 140.1024, "radius": 1600, "url": "https://www.jartic.or.jp/", "source": "JARTIC"}, {"id": 401, "category": "crime", "title": "東京都内の防犯ニュース", "summary": "東京都内で報じられた事件・防犯ニュースのテスト表示。", "area": "東京都内", "prefecture": "東京都", "city": "千代田区", "region": "関東", "side": "east", "time": "確認用", "precision": "市区町村レベル", "displayType": "area", "lat": 35.6812, "lon": 139.7671, "radius": 2000, "url": "#", "source": "ニュース"}, {"id": 402, "category": "event", "title": "横浜市内のイベント情報", "summary": "神奈川県内イベント情報のテスト表示。", "area": "横浜市周辺", "prefecture": "神奈川県", "city": "横浜市", "region": "関東", "side": "east", "time": "確認用", "precision": "会場レベル", "displayType": "pin", "lat": 35.4437, "lon": 139.638, "url": "#", "source": "イベント情報"}, {"id": 403, "category": "traffic", "title": "首都高速の渋滞情報", "summary": "区間が分かる高速道路渋滞のテスト表示。", "area": "首都高速 都心環状線", "prefecture": "東京都", "city": "千代田区", "region": "関東", "side": "east", "time": "確認用", "precision": "道路区間", "displayType": "line", "points": [[35.676, 139.748], [35.681, 139.758], [35.685, 139.77]], "lat": 35.681, "lon": 139.758, "url": "#", "source": "交通情報"}, {"id": 501, "category": "event", "title": "大阪市内のイベント情報", "summary": "大阪府内イベントのテスト表示。", "area": "大阪市中心部", "prefecture": "大阪府", "city": "大阪市", "region": "関西", "side": "west", "time": "確認用", "precision": "会場レベル", "displayType": "pin", "lat": 34.6937, "lon": 135.5023, "url": "#", "source": "イベント情報"}, {"id": 502, "category": "traffic", "title": "阪神高速の渋滞情報", "summary": "関西圏の交通情報テスト表示。", "area": "阪神高速 大阪市内", "prefecture": "大阪府", "city": "大阪市", "region": "関西", "side": "west", "time": "確認用", "precision": "道路区間", "displayType": "line", "points": [[34.69, 135.49], [34.694, 135.502], [34.7, 135.514]], "lat": 34.694, "lon": 135.502, "url": "#", "source": "交通情報"}];
+const state = {mode:"normal",pref:"秋田県",scope:"city",gpsPref:null,gpsPos:null,gpsMarker:null};
+const cat = {
+  crime:{list:"crimeList",count:"crimeCount",color:"#ef4444",icon:"🛡",check:"showCrime"},
+  event:{list:"eventList",count:"eventCount",color:"#22c55e",icon:"📅",check:"showEvent"},
+  traffic:{list:"trafficList",count:"trafficCount",color:"#f97316",icon:"🚗",check:"showTraffic"}
+};
+const map = L.map("map",{zoomControl:true,minZoom:4,maxZoom:18}).setView([36.2,138.2],5);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
+const layers = L.layerGroup().addTo(map);
 
-  const prefectures = {
-    "北海道": { lat:43.0642, lon:141.3469, city:"札幌市", region:"北海道", eastwest:"east", neighbors:["青森県"] },
-    "青森県": { lat:40.8244, lon:140.74, city:"青森市", region:"東北", eastwest:"east", neighbors:["北海道","岩手県","秋田県"] },
-    "岩手県": { lat:39.7036, lon:141.1527, city:"盛岡市", region:"東北", eastwest:"east", neighbors:["青森県","秋田県","宮城県"] },
-    "宮城県": { lat:38.2688, lon:140.8721, city:"仙台市", region:"東北", eastwest:"east", neighbors:["岩手県","秋田県","山形県","福島県"] },
-    "秋田県": { lat:39.7186, lon:140.1024, city:"秋田市", region:"東北", eastwest:"east", neighbors:["青森県","岩手県","宮城県","山形県"] },
-    "山形県": { lat:38.2404, lon:140.3633, city:"山形市", region:"東北", eastwest:"east", neighbors:["秋田県","宮城県","福島県","新潟県"] },
-    "福島県": { lat:37.7503, lon:140.4676, city:"福島市", region:"東北", eastwest:"east", neighbors:["宮城県","山形県","新潟県","栃木県","茨城県","群馬県"] },
-    "茨城県": { lat:36.3418, lon:140.4468, city:"水戸市", region:"関東", eastwest:"east", neighbors:["福島県","栃木県","埼玉県","千葉県"] },
-    "栃木県": { lat:36.5658, lon:139.8836, city:"宇都宮市", region:"関東", eastwest:"east", neighbors:["福島県","群馬県","埼玉県","茨城県"] },
-    "群馬県": { lat:36.3907, lon:139.0604, city:"前橋市", region:"関東", eastwest:"east", neighbors:["新潟県","福島県","栃木県","埼玉県","長野県"] },
-    "埼玉県": { lat:35.8617, lon:139.6455, city:"さいたま市", region:"関東", eastwest:"east", neighbors:["東京都","千葉県","茨城県","栃木県","群馬県","長野県","山梨県"] },
-    "千葉県": { lat:35.6074, lon:140.1065, city:"千葉市", region:"関東", eastwest:"east", neighbors:["東京都","埼玉県","茨城県","神奈川県"] },
-    "東京都": { lat:35.6812, lon:139.7671, city:"千代田区", region:"関東", eastwest:"east", neighbors:["神奈川県","埼玉県","千葉県","山梨県"] },
-    "神奈川県": { lat:35.4437, lon:139.638, city:"横浜市", region:"関東", eastwest:"east", neighbors:["東京都","静岡県","山梨県","千葉県"] },
-    "山梨県": { lat:35.6639, lon:138.5683, city:"甲府市", region:"甲信越", eastwest:"east", neighbors:["東京都","神奈川県","埼玉県","長野県","静岡県"] },
-    "新潟県": { lat:37.9026, lon:139.0232, city:"新潟市", region:"甲信越", eastwest:"east", neighbors:["山形県","福島県","群馬県","長野県","富山県"] },
-    "長野県": { lat:36.6513, lon:138.181, city:"長野市", region:"甲信越", eastwest:"east", neighbors:["新潟県","群馬県","埼玉県","山梨県","静岡県","愛知県","岐阜県","富山県"] },
-    "静岡県": { lat:34.9756, lon:138.3828, city:"静岡市", region:"東海", eastwest:"east", neighbors:["神奈川県","山梨県","長野県","愛知県"] },
-    "愛知県": { lat:35.1802, lon:136.9066, city:"名古屋市", region:"東海", eastwest:"west", neighbors:["静岡県","長野県","岐阜県","三重県"] },
-    "岐阜県": { lat:35.3912, lon:136.7223, city:"岐阜市", region:"東海", eastwest:"west", neighbors:["富山県","石川県","福井県","滋賀県","三重県","愛知県","長野県"] },
-    "三重県": { lat:34.7303, lon:136.5086, city:"津市", region:"東海", eastwest:"west", neighbors:["愛知県","岐阜県","滋賀県","京都府","奈良県","和歌山県"] },
-    "富山県": { lat:36.6953, lon:137.2113, city:"富山市", region:"北陸", eastwest:"west", neighbors:["新潟県","長野県","岐阜県","石川県"] },
-    "石川県": { lat:36.5947, lon:136.6256, city:"金沢市", region:"北陸", eastwest:"west", neighbors:["富山県","岐阜県","福井県"] },
-    "福井県": { lat:36.0652, lon:136.2216, city:"福井市", region:"北陸", eastwest:"west", neighbors:["石川県","岐阜県","滋賀県","京都府"] },
-    "滋賀県": { lat:35.0045, lon:135.8686, city:"大津市", region:"関西", eastwest:"west", neighbors:["福井県","岐阜県","三重県","京都府"] },
-    "京都府": { lat:35.0116, lon:135.7681, city:"京都市", region:"関西", eastwest:"west", neighbors:["福井県","滋賀県","三重県","奈良県","大阪府","兵庫県"] },
-    "大阪府": { lat:34.6937, lon:135.5023, city:"大阪市", region:"関西", eastwest:"west", neighbors:["京都府","兵庫県","奈良県","和歌山県"] },
-    "兵庫県": { lat:34.6901, lon:135.1955, city:"神戸市", region:"関西", eastwest:"west", neighbors:["京都府","大阪府","岡山県","鳥取県","徳島県"] },
-    "奈良県": { lat:34.6851, lon:135.8048, city:"奈良市", region:"関西", eastwest:"west", neighbors:["京都府","大阪府","和歌山県","三重県"] },
-    "和歌山県": { lat:34.226, lon:135.1675, city:"和歌山市", region:"関西", eastwest:"west", neighbors:["大阪府","奈良県","三重県","徳島県"] },
-    "鳥取県": { lat:35.5039, lon:134.2383, city:"鳥取市", region:"中国", eastwest:"west", neighbors:["兵庫県","岡山県","島根県","広島県"] },
-    "島根県": { lat:35.4723, lon:133.0505, city:"松江市", region:"中国", eastwest:"west", neighbors:["鳥取県","広島県","山口県"] },
-    "岡山県": { lat:34.6551, lon:133.9195, city:"岡山市", region:"中国", eastwest:"west", neighbors:["兵庫県","鳥取県","広島県","香川県"] },
-    "広島県": { lat:34.3853, lon:132.4553, city:"広島市", region:"中国", eastwest:"west", neighbors:["岡山県","鳥取県","島根県","山口県","愛媛県"] },
-    "山口県": { lat:34.1785, lon:131.4737, city:"山口市", region:"中国", eastwest:"west", neighbors:["島根県","広島県","福岡県"] },
-    "徳島県": { lat:34.0658, lon:134.5593, city:"徳島市", region:"四国", eastwest:"west", neighbors:["香川県","高知県","兵庫県","和歌山県"] },
-    "香川県": { lat:34.3401, lon:134.0434, city:"高松市", region:"四国", eastwest:"west", neighbors:["徳島県","愛媛県","岡山県"] },
-    "愛媛県": { lat:33.8416, lon:132.7661, city:"松山市", region:"四国", eastwest:"west", neighbors:["香川県","高知県","広島県","大分県"] },
-    "高知県": { lat:33.5597, lon:133.5311, city:"高知市", region:"四国", eastwest:"west", neighbors:["徳島県","愛媛県"] },
-    "福岡県": { lat:33.5902, lon:130.4017, city:"福岡市", region:"九州", eastwest:"west", neighbors:["佐賀県","熊本県","大分県","山口県"] },
-    "佐賀県": { lat:33.2494, lon:130.2988, city:"佐賀市", region:"九州", eastwest:"west", neighbors:["福岡県","長崎県"] },
-    "長崎県": { lat:32.7448, lon:129.8737, city:"長崎市", region:"九州", eastwest:"west", neighbors:["佐賀県"] },
-    "熊本県": { lat:32.7898, lon:130.7417, city:"熊本市", region:"九州", eastwest:"west", neighbors:["福岡県","大分県","宮崎県","鹿児島県"] },
-    "大分県": { lat:33.2382, lon:131.6126, city:"大分市", region:"九州", eastwest:"west", neighbors:["福岡県","熊本県","宮崎県","愛媛県"] },
-    "宮崎県": { lat:31.9111, lon:131.4239, city:"宮崎市", region:"九州", eastwest:"west", neighbors:["大分県","熊本県","鹿児島県"] },
-    "鹿児島県": { lat:31.5602, lon:130.5581, city:"鹿児島市", region:"九州", eastwest:"west", neighbors:["熊本県","宮崎県","沖縄県"] },
-    "沖縄県": { lat:26.2124, lon:127.6792, city:"那覇市", region:"沖縄", eastwest:"west", neighbors:["鹿児島県"] },
-  };
+function basePref(){ return state.gpsPref || state.pref; }
+function scopeLabel(){ return {city:"同市区町村",prefecture:"同県",neighbors:"隣県まで",region:"地方",side:"東/西日本"}[state.scope]; }
+function visibleCategory(c){ return document.getElementById(cat[c].check).checked; }
 
-  const newsData = [
-    {
-        "id": 101,
-        "category": "crime",
-        "title": "潟上市で児童への無断撮影事案",
-        "summary": "秋田県警が公表している不審者情報。女子児童らが小学校の校地内で遊んでいたところ、周辺道路にいた見知らぬ男からスマートフォンを向けられる事案が発生。",
-        "area": "潟上市周辺",
-        "prefecture": "秋田県",
-        "city": "潟上市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/05/19 17:50ごろ",
-        "precision": "市区町村レベル",
-        "displayType": "area",
-        "lat": 39.883,
-        "lon": 139.988,
-        "radius": 2500,
-        "url": "https://www.police.pref.akita.lg.jp/kenkei/osirase/suspicious",
-        "source": "秋田県警察 不審者情報"
-    },
-    {
-        "id": 102,
-        "category": "crime",
-        "title": "秋田県内の不審者情報",
-        "summary": "秋田県警は、子どもが対象となった声掛け・つきまとい等の事案について注意喚起を行っています。詳細は情報元を確認してください。",
-        "area": "秋田県内",
-        "prefecture": "秋田県",
-        "city": "秋田市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/06/03更新",
-        "precision": "県内情報",
-        "displayType": "area",
-        "lat": 39.7186,
-        "lon": 140.1024,
-        "radius": 5000,
-        "url": "https://www.police.pref.akita.lg.jp/kenkei/osirase/suspicious",
-        "source": "秋田県警察 不審者情報"
-    },
-    {
-        "id": 201,
-        "category": "event",
-        "title": "青空フリーマーケット",
-        "summary": "秋田拠点センターアルヴェで開催されるフリーマーケット情報。",
-        "area": "秋田拠点センターアルヴェ",
-        "prefecture": "秋田県",
-        "city": "秋田市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/06/09",
-        "precision": "会場レベル",
-        "displayType": "pin",
-        "lat": 39.7169,
-        "lon": 140.1298,
-        "url": "https://akitanote.jp/event/6.html",
-        "source": "秋田県イベント情報"
-    },
-    {
-        "id": 202,
-        "category": "event",
-        "title": "東京カレーカルチャー in 秋田",
-        "summary": "西武秋田店で開催されるグルメ系イベント。2026/06/09〜2026/06/21開催。",
-        "area": "西武秋田店",
-        "prefecture": "秋田県",
-        "city": "秋田市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/06/09〜2026/06/21",
-        "precision": "会場レベル",
-        "displayType": "pin",
-        "lat": 39.7186,
-        "lon": 140.1265,
-        "url": "https://akitanote.jp/event/6.html",
-        "source": "秋田県イベント情報"
-    },
-    {
-        "id": 203,
-        "category": "event",
-        "title": "春のバラ観賞会",
-        "summary": "遊学舎で開催される季節イベント。",
-        "area": "遊学舎",
-        "prefecture": "秋田県",
-        "city": "秋田市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/06/10",
-        "precision": "会場レベル",
-        "displayType": "pin",
-        "lat": 39.67,
-        "lon": 140.1468,
-        "url": "https://akitanote.jp/event/6.html",
-        "source": "秋田県イベント情報"
-    },
-    {
-        "id": 204,
-        "category": "event",
-        "title": "バラフェスタ2026",
-        "summary": "秋田県立農業科学館で開催。約200品種300株の初夏のバラを楽しめるイベント。",
-        "area": "秋田県立農業科学館",
-        "prefecture": "秋田県",
-        "city": "大仙市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "2026/06/06〜2026/06/28",
-        "precision": "会場レベル",
-        "displayType": "pin",
-        "lat": 39.453,
-        "lon": 140.493,
-        "url": "https://www.walkerplus.com/event_list/0620/ar0205/",
-        "source": "ウォーカープラス"
-    },
-    {
-        "id": 301,
-        "category": "traffic",
-        "title": "秋田県の道路交通情報",
-        "summary": "渋滞・事故・規制などの最新状況はJARTIC等の公式交通情報で確認できます。地図表示は秋田市周辺の確認用エリアです。",
-        "area": "秋田市周辺",
-        "prefecture": "秋田県",
-        "city": "秋田市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "リアルタイム確認",
-        "precision": "公式リンク確認",
-        "displayType": "area",
-        "lat": 39.7186,
-        "lon": 140.1024,
-        "radius": 1500,
-        "url": "https://www.jartic.or.jp/",
-        "source": "JARTIC 日本道路交通情報センター"
-    },
-    {
-        "id": 302,
-        "category": "traffic",
-        "title": "高速道路のリアルタイム交通情報",
-        "summary": "高速道路の通行止め・渋滞などを確認できる交通情報リンク。実際の区間表示は、IC〜ICなど区間が取得できる場合に反映予定です。",
-        "area": "東北地方周辺",
-        "prefecture": "宮城県",
-        "city": "仙台市",
-        "region": "東北",
-        "eastwest": "east",
-        "time": "リアルタイム確認",
-        "precision": "公式リンク確認",
-        "displayType": "line",
-        "points": [
-            [
-                38.287,
-                140.804
-            ],
-            [
-                38.275,
-                140.82
-            ],
-            [
-                38.265,
-                140.835
-            ]
-        ],
-        "lat": 38.275,
-        "lon": 140.82,
-        "url": "https://www.drivetraffic.jp/map.html?area=02&lv=6&t=r",
-        "source": "ドラぷら リアルタイム交通情報"
-    }
-];
+function fixedPrefNames(){
+  const p = basePref();
+  const info = PREFS[p];
+  if(!info) return [];
+  if(state.scope==="city" || state.scope==="prefecture") return [p];
+  if(state.scope==="neighbors") return [p,...info.neighbors];
+  if(state.scope==="region") return Object.keys(PREFS).filter(k=>PREFS[k].region===info.region);
+  if(state.scope==="side") return Object.keys(PREFS).filter(k=>PREFS[k].side===info.side);
+  return [p];
+}
 
-  const categoryInfo = {
-    crime: { label: "事件・防犯", icon: "🛡", color: "#ef4444", listId: "crimeList", countId: "crimeCount", checkboxId: "showCrime" },
-    event: { label: "イベント", icon: "📅", color: "#22c55e", listId: "eventList", countId: "eventCount", checkboxId: "showEvent" },
-    traffic: { label: "交通事故・渋滞", icon: "🚗", color: "#f97316", listId: "trafficList", countId: "trafficCount", checkboxId: "showTraffic" }
-  };
-
-  const state = {
-    mode: "normal",
-    fixedBase: "prefecture",
-    selectedPrefecture: "秋田県",
-    currentLocation: null,
-    currentPrefecture: null,
-    currentCity: null,
-    scope: "city",
-    currentMarker: null
-  };
-
-  const map = L.map("map", {
-    zoomControl: true,
-    minZoom: 4,
-    maxZoom: 18
-  }).setView([36.2, 138.2], 5);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-
-  const layers = L.layerGroup().addTo(map);
-
-  function nearestPrefecture(lat, lon) {
-    let best = null;
-    let bestDist = Infinity;
-    Object.entries(prefectures).forEach(([name, p]) => {
-      const d = Math.pow(lat - p.lat, 2) + Math.pow(lon - p.lon, 2);
-      if (d < bestDist) {
-        bestDist = d;
-        best = name;
-      }
-    });
-    return best || "秋田県";
+function filteredNews(){
+  if(state.mode==="normal") return NEWS;
+  const names = new Set(fixedPrefNames());
+  if(state.scope==="city"){
+    const p = basePref();
+    const city = PREFS[p]?.city;
+    return NEWS.filter(n=>n.prefecture===p && n.city===city);
   }
+  return NEWS.filter(n=>names.has(n.prefecture));
+}
 
-  function basePrefecture() {
-    if (state.fixedBase === "current" && state.currentPrefecture) return state.currentPrefecture;
-    return state.selectedPrefecture;
-  }
+function popup(item){
+ const c=cat[item.category];
+ return `<div class="popup-title">${c.icon} ${item.title}</div>
+ <div class="popup-meta">${item.area} / ${item.time} / ${item.precision}<br>情報元：${item.source||"ニュース"}</div>
+ <div style="margin-bottom:8px">${item.summary}</div>
+ <a class="popup-link" href="${item.url}" target="_blank" rel="noopener">情報元を見る</a>`;
+}
 
-  function baseCity() {
-    if (state.fixedBase === "current" && state.currentCity) return state.currentCity;
-    return prefectures[basePrefecture()]?.city || "";
-  }
+function drawItem(item){
+ const c=cat[item.category], color=c.color;
+ if(item.displayType==="area"){
+  L.circle([item.lat,item.lon],{radius:item.radius||1000,color,weight:2,opacity:.95,fillColor:color,fillOpacity:.18}).bindPopup(popup(item)).addTo(layers);
+ } else if(item.displayType==="line"){
+  L.polyline(item.points,{color,weight:8,opacity:.9}).bindPopup(popup(item)).addTo(layers);
+ } else {
+  L.marker([item.lat,item.lon]).bindPopup(popup(item)).addTo(layers);
+ }
+}
 
-  function isVisibleCategory(category) {
-    const checkbox = document.getElementById(categoryInfo[category].checkboxId);
-    return checkbox ? checkbox.checked : true;
-  }
+function getScopePrefNames(){
+ const p = basePref();
+ const info = PREFS[p];
+ if(!info) return [];
+ if(state.scope==="city" || state.scope==="prefecture") return [p];
+ if(state.scope==="neighbors") return [p,...info.neighbors];
+ if(state.scope==="region") return Object.keys(PREFS).filter(k=>PREFS[k].region===info.region);
+ if(state.scope==="side") return Object.keys(PREFS).filter(k=>PREFS[k].side===info.side);
+ return [p];
+}
 
-  function geoFilteredItems() {
-    if (state.mode === "normal") {
-      return newsData;
-    }
+function roughPrefBounds(prefName){
+ const p = PREFS[prefName];
+ if(!p) return null;
 
-    const pref = basePrefecture();
-    const prefInfo = prefectures[pref];
-    const city = baseCity();
+ // 県境データなしの簡易版。まずは「選択県全域の目安」を最小表示にする。
+ const custom = {
+   "北海道":[3.5,4.6],
+   "東京都":[0.42,0.55],
+   "神奈川県":[0.42,0.55],
+   "大阪府":[0.38,0.50],
+   "沖縄県":[1.25,1.55],
+   "秋田県":[1.05,1.10],
+   "岩手県":[1.25,1.15],
+   "宮城県":[0.90,0.90],
+   "青森県":[1.05,1.10],
+   "山形県":[1.00,0.95],
+   "福島県":[1.15,1.15]
+ };
+ const span = custom[prefName] || [0.90,0.90];
 
-    if (!prefInfo) return newsData;
+ return L.latLngBounds(
+   [p.lat - span[0], p.lon - span[1]],
+   [p.lat + span[0], p.lon + span[1]]
+ );
+}
 
-    if (state.scope === "city") {
-      if (city) return newsData.filter(item => item.city === city && item.prefecture === pref);
-      return newsData.filter(item => item.prefecture === pref);
-    }
+function boundsForCurrentScope(){
+ const p = basePref();
+ const info = PREFS[p];
+ if(!info) return L.latLngBounds([[24,122],[46,146]]);
 
-    if (state.scope === "prefecture") {
-      return newsData.filter(item => item.prefecture === pref);
-    }
+ if(state.scope==="city"){
+   return L.latLngBounds(
+     [info.lat - 0.22, info.lon - 0.28],
+     [info.lat + 0.22, info.lon + 0.28]
+   );
+ }
 
-    if (state.scope === "neighbors") {
-      const allowed = new Set([pref, ...(prefInfo.neighbors || [])]);
-      return newsData.filter(item => allowed.has(item.prefecture));
-    }
+ if(state.scope==="prefecture"){
+   return roughPrefBounds(p);
+ }
 
-    if (state.scope === "region") {
-      return newsData.filter(item => item.region === prefInfo.region);
-    }
+ const pts = getScopePrefNames().map(k=>PREFS[k]).filter(Boolean).map(x=>[x.lat,x.lon]);
+ if(!pts.length) return roughPrefBounds(p);
+ return L.latLngBounds(pts).pad(0.35);
+}
 
-    if (state.scope === "eastwest") {
-      return newsData.filter(item => item.eastwest === prefInfo.eastwest);
-    }
+function applyMapMode(){
+ document.body.classList.toggle("fixed", state.mode==="fixed");
 
-    return newsData;
-  }
+ if(state.mode==="normal"){
+  map.setMaxBounds(null);
+  map.options.maxBoundsViscosity = 0;
+  map.setMinZoom(4);
 
-  function mapItems() {
-    return geoFilteredItems().filter(item => isVisibleCategory(item.category));
-  }
+  map.dragging.enable();
+  map.touchZoom.enable();
+  map.doubleClickZoom.enable();
+  map.scrollWheelZoom.enable();
+  map.boxZoom.enable();
+  map.keyboard.enable();
+  if(map.tap) map.tap.enable();
 
-  function popupHtml(item) {
-    const info = categoryInfo[item.category];
-    return `
-      <div class="popup-title">${info.icon} ${item.title}</div>
-      <div class="popup-meta">${item.area} / ${item.time} / 位置精度：${item.precision}<br>情報元：${item.source || "ニュース"}</div>
-      <div style="margin-bottom:8px;">${item.summary}</div>
-      <a class="popup-link" href="${item.url}" target="_blank" rel="noopener noreferrer">ニュースを見る</a>
-    `;
-  }
+  document.getElementById("lockNote").textContent = "通常モード：自由表示";
+  return;
+ }
 
-  function addMapItem(item) {
-    const info = categoryInfo[item.category];
-    const color = info.color;
+ // 固定モード：範囲内での移動・ズームインは許可。ズームアウトと範囲外移動だけ制限。
+ map.dragging.enable();
+ map.touchZoom.enable();
+ map.doubleClickZoom.enable();
+ map.scrollWheelZoom.enable();
+ map.boxZoom.enable();
+ map.keyboard.enable();
+ if(map.tap) map.tap.enable();
 
-    if (item.displayType === "area") {
-      L.circle([item.lat, item.lon], {
-        radius: item.radius || 700,
-        color,
-        weight: 2,
-        opacity: 0.95,
-        fillColor: color,
-        fillOpacity: 0.18
-      }).bindPopup(popupHtml(item)).addTo(layers);
-      return;
-    }
+ document.getElementById("lockNote").textContent = `固定：${basePref()} / ${scopeLabel()}（範囲内でズーム可）`;
+}
 
-    if (item.displayType === "line") {
-      L.polyline(item.points, {
-        color,
-        weight: 8,
-        opacity: 0.9
-      }).bindPopup(popupHtml(item)).addTo(layers);
-      return;
-    }
+function setFixedView(){
+ const b = boundsForCurrentScope();
+ if(!b || !b.isValid()) return;
 
-    L.marker([item.lat, item.lon]).bindPopup(popupHtml(item)).addTo(layers);
-  }
+ applyMapMode();
 
-  function fixedViewportPoints() {
-    if (state.mode !== "fixed") return null;
+ map.fitBounds(b, {padding:[18,18], animate:false});
 
-    const pref = basePrefecture();
-    const prefInfo = prefectures[pref];
-    if (!prefInfo) return null;
+ // fitBounds直後のズーム値を最小ズームにする。
+ setTimeout(()=>{
+   map.invalidateSize();
+   map.fitBounds(b, {padding:[18,18], animate:false});
+   const minZ = map.getZoom();
+   map.setMinZoom(minZ);
+   map.setMaxBounds(b.pad(0.12));
+   map.options.maxBoundsViscosity = 1.0;
+ },80);
 
-    if (state.scope === "city" || state.scope === "prefecture") {
-      return [[prefInfo.lat, prefInfo.lon]];
-    }
+ setTimeout(()=>{
+   map.invalidateSize();
+   map.fitBounds(b, {padding:[18,18], animate:false});
+   map.setMinZoom(map.getZoom());
+   map.setMaxBounds(b.pad(0.12));
+ },250);
+}
 
-    if (state.scope === "neighbors") {
-      const names = [pref, ...(prefInfo.neighbors || [])];
-      return names
-        .map(name => prefectures[name])
-        .filter(Boolean)
-        .map(p => [p.lat, p.lon]);
-    }
+function setNormalView(items){
+ applyMapMode();
+ const pts=[];
+ items.forEach(n=>{ if(n.points) n.points.forEach(p=>pts.push(p)); else pts.push([n.lat,n.lon]); });
+ if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.18));
+ else map.setView([36.2,138.2],5);
+}
 
-    if (state.scope === "region") {
-      return Object.values(prefectures)
-        .filter(p => p.region === prefInfo.region)
-        .map(p => [p.lat, p.lon]);
-    }
+function renderMap(){
+ layers.clearLayers();
+ const items = filteredNews().filter(n=>visibleCategory(n.category));
+ items.forEach(drawItem);
+ setTimeout(()=>{ map.invalidateSize(); if(state.mode==="fixed") setFixedView(); else setNormalView(items); },60);
+ setTimeout(()=>{ map.invalidateSize(); if(state.mode==="fixed") setFixedView(); },220);
+}
 
-    if (state.scope === "eastwest") {
-      return Object.values(prefectures)
-        .filter(p => p.eastwest === prefInfo.eastwest)
-        .map(p => [p.lat, p.lon]);
-    }
-
-    return [[prefInfo.lat, prefInfo.lon]];
-  }
-
-  function setFixedViewport() {
-    const note = document.getElementById("fixedViewNote");
-
-    if (state.mode === "normal") {
-      if (note) note.textContent = "通常モード：全国表示";
-      map.setView([36.2, 138.2], 5);
-      return;
-    }
-
-    const pref = basePrefecture();
-    const prefInfo = prefectures[pref];
-    const scopeLabel = {
-      city: "同市区町村",
-      prefecture: "同県",
-      neighbors: "隣県まで",
-      region: "地方ブロック",
-      eastwest: "東日本 / 西日本"
-    }[state.scope] || "固定";
-
-    if (note) note.textContent = `固定：${pref} / ${scopeLabel}`;
-
-    if (!prefInfo) return;
-
-    // 市区町村・同県はニュース件数に関係なく選択都道府県の中心へ。
-    if (state.scope === "city") {
-      map.setView([prefInfo.lat, prefInfo.lon], 11);
-      return;
-    }
-
-    if (state.scope === "prefecture") {
-      map.setView([prefInfo.lat, prefInfo.lon], 8);
-      return;
-    }
-
-    // 隣県・地方・東西は、対象都道府県の中心点全体が入るよう固定ズーム。
-    const pts = fixedViewportPoints();
-    if (pts && pts.length > 1) {
-      map.fitBounds(L.latLngBounds(pts).pad(0.28));
-      return;
-    }
-
-    map.setView([prefInfo.lat, prefInfo.lon], 8);
-  }
-
-  function focusBounds(items) {
-    if (state.mode === "fixed") {
-      setFixedViewport();
-      return;
-    }
-
-    const points = [];
-    items.forEach(item => {
-      if (item.points) item.points.forEach(p => points.push(p));
-      else points.push([item.lat, item.lon]);
-    });
-
-    if (points.length) {
-      map.fitBounds(L.latLngBounds(points).pad(0.18));
-      return;
-    }
-
-    map.setView([36.2, 138.2], 5);
-  }
-
-  function renderMap() {
-    if (map && map.invalidateSize) {
-      setTimeout(() => map.invalidateSize(), 0);
-    }
-    layers.clearLayers();
-    const items = mapItems();
-    items.forEach(addMapItem);
-    focusBounds(items);
-  }
-
-  function focusItem(item) {
-    if (item.points) {
-      map.fitBounds(L.latLngBounds(item.points).pad(0.35));
-    } else {
-      map.setView([item.lat, item.lon], item.category === "event" ? 15 : 13);
-    }
-
-    setTimeout(() => {
-      L.popup()
-        .setLatLng(item.points ? item.points[Math.floor(item.points.length / 2)] : [item.lat, item.lon])
-        .setContent(popupHtml(item))
-        .openOn(map);
-    }, 150);
-
-    document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function renderNewsLists() {
-    const items = geoFilteredItems();
-
-    Object.entries(categoryInfo).forEach(([category, info]) => {
-      const box = document.getElementById(info.listId);
-      const count = document.getElementById(info.countId);
-      box.innerHTML = "";
-
-      const categoryItems = items.filter(item => item.category === category);
-      count.textContent = `${categoryItems.length}件`;
-
-      if (!categoryItems.length) {
-        box.innerHTML = `<div class="empty">この範囲のニュースはありません。</div>`;
-        return;
-      }
-
-      categoryItems.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "news-item";
-        btn.innerHTML = `
-          <p class="news-title">${item.title}</p>
-          <p class="news-text">${item.summary}</p>
-          <div class="news-meta">${item.area} / ${item.time} / 位置精度：${item.precision}<br>情報元：${item.source || "ニュース"}</div>
-          <span class="action">地図で見る</span>
-        `;
-        btn.onclick = () => {
-          const checkbox = document.getElementById(categoryInfo[item.category].checkboxId);
-          if (checkbox && !checkbox.checked) {
-            checkbox.checked = true;
-            renderMap();
-          }
-          focusItem(item);
-        };
-        box.appendChild(btn);
-      });
-    });
-  }
-
-  function updateHeader() {
-    const regionName = document.getElementById("regionName");
-    const regionNote = document.getElementById("regionNote");
-    const modeNote = document.getElementById("modeNote");
-
-    if (state.mode === "normal") {
-      regionName.textContent = "全国ニュース";
-      regionNote.textContent = "通常モード";
-      modeNote.textContent = "通常モードでは全国ニュースを表示します。";
-      document.getElementById("weatherTitle").textContent = "全国表示";
-      document.getElementById("weatherSmall").textContent = "通常/固定モードと表示範囲を選択";
-      document.getElementById("temp").textContent = "--℃";
-      document.getElementById("rain").textContent = "--%";
-      document.getElementById("wind").textContent = "--m";
-      return;
-    }
-
-    const pref = basePrefecture();
-    const city = baseCity();
-    const scopeLabel = {
-      city: "同市区町村",
-      prefecture: "同県",
-      neighbors: "隣県まで",
-      region: "地方ブロック",
-      eastwest: "東日本 / 西日本"
-    }[state.scope];
-
-    regionName.textContent = `${pref} ${scopeLabel}`;
-    regionNote.textContent = state.fixedBase === "current" ? "GPS都道府県固定" : "都道府県固定";
-    modeNote.textContent = `固定モード：${state.fixedBase === "current" ? "GPSで判定した" + pref : pref}を基準に「${scopeLabel}」のニュースを表示中。`;
-
-    if (pref === "秋田県") {
-      document.getElementById("weatherTitle").textContent = "おおむね曇り";
-      document.getElementById("weatherSmall").textContent = "秋田市周辺の天気";
-      document.getElementById("temp").textContent = "16℃";
-      document.getElementById("rain").textContent = "--%";
-      document.getElementById("wind").textContent = "--m";
-    } else {
-      document.getElementById("weatherTitle").textContent = `${pref}の天気`;
-      document.getElementById("weatherSmall").textContent = "天気データ連携予定";
-      document.getElementById("temp").textContent = "--℃";
-      document.getElementById("rain").textContent = "--%";
-      document.getElementById("wind").textContent = "--m";
-    }
-  }
-
-  function rerenderAll() {
-    updateHeader();
-    renderNewsLists();
-    renderMap();
-    setTimeout(() => {
-      if (map && map.invalidateSize) map.invalidateSize();
-      if (state.mode === "fixed") setFixedViewport();
-    }, 120);
-  }
-
-  function setMode(mode) {
-    state.mode = mode;
-    document.body.classList.toggle("normal-mode", mode === "normal");
-    document.body.classList.toggle("fixed-mode", mode === "fixed");
-    document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
-    rerenderAll();
-  }
-
-  document.getElementById("normalModeBtn").addEventListener("click", () => setMode("normal"));
-  document.getElementById("fixedModeBtn").addEventListener("click", () => setMode("fixed"));
-
-  document.getElementById("prefSelect").addEventListener("change", ev => {
-    state.fixedBase = "prefecture";
-    state.selectedPrefecture = ev.target.value;
-    setMode("fixed");
+function renderLists(){
+ const items = filteredNews();
+ Object.keys(cat).forEach(k=>{
+  const box=document.getElementById(cat[k].list), count=document.getElementById(cat[k].count);
+  box.innerHTML="";
+  const arr=items.filter(n=>n.category===k);
+  count.textContent=`${arr.length}件`;
+  if(!arr.length){ box.innerHTML='<div class="empty">この範囲のニュースはありません。</div>'; return; }
+  arr.forEach(item=>{
+   const b=document.createElement("button");
+   b.className="item";
+   b.innerHTML=`<h3>${item.title}</h3><p>${item.summary}</p><div class="meta">${item.area} / ${item.time} / ${item.precision}<br>情報元：${item.source}</div><span class="action">地図で見る</span>`;
+   b.onclick=()=>{ document.getElementById(cat[item.category].check).checked=true; renderMap(); if(item.points) map.fitBounds(L.latLngBounds(item.points).pad(.35)); else map.setView([item.lat,item.lon], item.category==="event"?15:13); L.popup().setLatLng(item.points?item.points[Math.floor(item.points.length/2)]:[item.lat,item.lon]).setContent(popup(item)).openOn(map); document.getElementById("map").scrollIntoView({behavior:"smooth",block:"center"}); };
+   box.appendChild(b);
   });
+ });
+}
 
-  document.querySelectorAll(".scope-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.scope = btn.dataset.scope;
-      document.querySelectorAll(".scope-btn").forEach(b => b.classList.toggle("active", b === btn));
-      setMode("fixed");
-    });
-  });
+function updateHeader(){
+ document.getElementById("normalBtn").classList.toggle("active",state.mode==="normal");
+ document.getElementById("fixedBtn").classList.toggle("active",state.mode==="fixed");
+ document.querySelectorAll(".scope").forEach(b=>b.classList.toggle("active",b.dataset.scope===state.scope));
+ applyMapMode();
+ if(state.mode==="normal"){
+  document.getElementById("status").textContent="全国ニュース";
+  document.getElementById("statusNote").textContent="通常モード";
+  document.getElementById("weatherTitle").textContent="地域天気";
+  document.getElementById("temp").textContent="--℃";document.getElementById("rain").textContent="--%";document.getElementById("wind").textContent="--m";
+ } else {
+  const p=basePref();
+  document.getElementById("status").textContent=`${p} ${scopeLabel()}`;
+  document.getElementById("statusNote").textContent=state.gpsPref?`GPS判定：${state.gpsPref}`:"都道府県固定";
+  document.getElementById("weatherTitle").textContent=`${p}の天気`;
+  document.getElementById("temp").textContent=p==="秋田県"?"16℃":"--℃";
+  document.getElementById("rain").textContent="--%";document.getElementById("wind").textContent="--m";
+ }
+}
 
-  document.getElementById("layerChecks").addEventListener("change", renderMap);
+function rerender(){ updateHeader(); renderLists(); renderMap(); }
 
-  document.getElementById("useLocationBtn").addEventListener("click", () => {
-    if (!navigator.geolocation) {
-      alert("このブラウザでは現在地を取得できません。");
-      return;
-    }
+document.getElementById("normalBtn").onclick=()=>{ state.mode="normal"; state.gpsPref=null; rerender(); };
+document.getElementById("fixedBtn").onclick=()=>{ state.mode="fixed"; rerender(); };
+document.getElementById("prefSelect").onchange=e=>{ state.pref=e.target.value; state.gpsPref=null; state.mode="fixed"; rerender(); };
+document.querySelectorAll(".scope").forEach(b=>b.onclick=()=>{ state.scope=b.dataset.scope; state.mode="fixed"; rerender(); });
+["showEvent","showCrime","showTraffic"].forEach(id=>document.getElementById(id).onchange=renderMap);
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const pref = nearestPrefecture(lat, lon);
+function nearestPref(lat,lon){
+ let best="秋田県",dist=Infinity;
+ Object.entries(PREFS).forEach(([k,p])=>{ const d=(lat-p.lat)**2+(lon-p.lon)**2; if(d<dist){dist=d;best=k;} });
+ return best;
+}
+document.getElementById("gpsBtn").onclick=()=>{
+ if(!navigator.geolocation){ alert("現在地を取得できません"); return; }
+ navigator.geolocation.getCurrentPosition(pos=>{
+  const lat=pos.coords.latitude, lon=pos.coords.longitude, p=nearestPref(lat,lon);
+  state.gpsPref=p; state.mode="fixed";
+  if(state.gpsMarker) map.removeLayer(state.gpsMarker);
+  const icon=L.divIcon({className:"",html:'<div class="current-marker"></div>',iconSize:[24,24],iconAnchor:[12,12]});
+  state.gpsMarker=L.marker([lat,lon],{icon}).bindPopup("現在地").addTo(map);
+  rerender();
+ },()=>alert("現在地を取得できませんでした。位置情報の許可を確認してください。"),{enableHighAccuracy:true,timeout:10000});
+};
 
-      state.fixedBase = "current";
-      state.currentLocation = { lat, lon };
-      state.currentPrefecture = pref;
-      state.currentCity = prefectures[pref]?.city || "";
-      state.selectedPrefecture = pref;
-      document.getElementById("prefSelect").value = Object.prototype.hasOwnProperty.call(prefectures, pref) ? pref : "秋田県";
-
-      if (state.currentMarker) {
-        map.removeLayer(state.currentMarker);
-      }
-
-      const icon = L.divIcon({
-        className: "",
-        html: '<div class="current-marker"></div>',
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-
-      state.currentMarker = L.marker([lat, lon], { icon }).bindPopup("現在地").addTo(map);
-
-      setMode("fixed");
-      // GPS地点にはピンだけを表示。
-      // 固定モードの地図範囲は、GPS座標そのものではなく、取得した都道府県＋倍率で決める。
-      setTimeout(() => {
-        if (map && map.invalidateSize) map.invalidateSize();
-        setFixedViewport();
-      }, 120);
-    }, () => {
-      alert("現在地を取得できませんでした。位置情報の許可を確認してください。");
-    }, {
-      enableHighAccuracy: true,
-      timeout: 10000
-    });
-  });
-
-  renderNewsLists();
-  renderMap();
-  updateHeader();
-})();
+rerender();
 </script>
 </body>
 </html>
