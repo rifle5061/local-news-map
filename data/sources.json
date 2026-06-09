@@ -1,0 +1,26 @@
+{
+  "note": "将来の自動取得用ソース設定。rss_sources にRSS URL、link_sources に確認用リンクを追加できます。",
+  "rss_sources": [
+    {
+      "name": "サンプルRSS",
+      "enabled": false,
+      "category": "event",
+      "prefecture": "東京都",
+      "url": "https://example.com/rss.xml"
+    }
+  ],
+  "link_sources": [
+    {
+      "name": "JARTIC",
+      "category": "traffic",
+      "url": "https://www.jartic.or.jp/",
+      "note": "交通情報の公式確認リンク"
+    },
+    {
+      "name": "Open-Meteo",
+      "category": "weather",
+      "url": "https://open-meteo.com/",
+      "note": "天気API"
+    }
+  ]
+}
