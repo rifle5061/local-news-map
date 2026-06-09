@@ -1,12 +1,35 @@
 {
-  "note": "将来の自動取得用ソース設定。rss_sources にRSS URL、link_sources に確認用リンクを追加できます。",
+  "note": "RSS/外部ニュース取得の設定。enabled:true にすると scripts/build_news.py が取得します。default_place は座標キャッシュのキーです。",
   "rss_sources": [
     {
-      "name": "サンプルRSS",
+      "name": "イベントRSSサンプル",
       "enabled": false,
       "category": "event",
       "prefecture": "東京都",
-      "url": "https://example.com/rss.xml"
+      "area": "東京都内",
+      "default_place": "東京都庁",
+      "url": "https://example.com/events.xml",
+      "max_items": 5
+    },
+    {
+      "name": "交通RSSサンプル",
+      "enabled": false,
+      "category": "traffic",
+      "prefecture": "東京都",
+      "area": "東京都内",
+      "default_place": "東京都庁",
+      "url": "https://example.com/traffic.xml",
+      "max_items": 5
+    },
+    {
+      "name": "防犯RSSサンプル",
+      "enabled": false,
+      "category": "crime",
+      "prefecture": "東京都",
+      "area": "東京都内",
+      "default_place": "東京都庁",
+      "url": "https://example.com/security.xml",
+      "max_items": 5
     }
   ],
   "link_sources": [
